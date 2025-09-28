@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import {
@@ -18,47 +17,97 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-
-const LoginPage = ({ navigation }) => {
+const CreateAccountPage = ({ navigation }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Login pressed', { email, password });
+  const handleCreateAccount = () => {
+    console.log('Create Account pressed', { firstName, lastName, email, password, confirmPassword });
   };
 
-  const handleSocialLogin = (provider) => {
-    console.log(`${provider} login pressed`);
+  const handleSocialSignup = (provider) => {
+    console.log(`${provider} signup pressed`);
   };
 
-  const navigateToCreateAccount = () => {
-    // navigation.navigate('CreateAccount'); // For React Navigation
-    console.log('Navigate to Create Account');
+  const navigateToLogin = () => {
+    navigation.navigate('Login');
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <LinearGradient
         colors={['#005667', '#192031']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
+        end={{ x: 1, y: 1 }}>
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Login to your account</Text>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Join us today</Text>
           </View>
 
           <Surface style={styles.formContainer} elevation={8}>
             <View style={styles.form}>
+
+              <View style={styles.nameRow}>
+                <View style={styles.nameInputContainer}>
+                  <Text style={styles.inputLabel}>First Name</Text>
+                  <TextInput
+                    mode="outlined"
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    placeholder="First name"
+                    left={
+                      <TextInput.Icon
+                        icon={() => (
+                          <Ionicons name="person-outline" size={20} color="#005667" />
+                        )}
+                      />
+                    }
+                    style={styles.input}
+                    outlineColor="#F3F3F6"
+                    activeOutlineColor="#005667"
+                    theme={{
+                      colors: {
+                        background: '#FFFFFF',
+                      },
+                    }}
+                  />
+                </View>
+
+                <View style={styles.nameInputContainer}>
+                  <Text style={styles.inputLabel}>Last Name</Text>
+                  <TextInput
+                    mode="outlined"
+                    value={lastName}
+                    onChangeText={setLastName}
+                    placeholder="Last name"
+                    left={
+                      <TextInput.Icon
+                        icon={() => (
+                          <Ionicons name="person-outline" size={20} color="#005667" />
+                        )}
+                      />
+                    }
+                    style={styles.input}
+                    outlineColor="#F3F3F6"
+                    activeOutlineColor="#005667"
+                    theme={{
+                      colors: {
+                        background: '#FFFFFF',
+                      },
+                    }}
+                  />
+                </View>
+              </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Email Address</Text>
@@ -87,7 +136,6 @@ const LoginPage = ({ navigation }) => {
                 />
               </View>
 
-              {/* Password Input */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Password</Text>
                 <TextInput
@@ -130,29 +178,73 @@ const LoginPage = ({ navigation }) => {
                 />
               </View>
 
-              {/* Remember Me & Forgot Password */}
-              <View style={styles.optionsRow}>
-                <View style={styles.checkboxContainer}>
-                  <Checkbox
-                    status={rememberMe ? 'checked' : 'unchecked'}
-                    onPress={() => setRememberMe(!rememberMe)}
-                    color="#005667"
-                  />
-                  <Text style={styles.checkboxText}>Remember Me</Text>
-                </View>
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Confirm Password</Text>
+                <TextInput
+                  mode="outlined"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder="Confirm your password"
+                  secureTextEntry={!showConfirmPassword}
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons
+                          name="lock-closed-outline"
+                          size={20}
+                          color="#005667"
+                        />
+                      )}
+                    />
+                  }
+                  right={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons
+                          name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                          size={20}
+                          color="#807979"
+                        />
+                      )}
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
+                  }
+                  style={styles.input}
+                  outlineColor="#F3F3F6"
+                  activeOutlineColor="#005667"
+                  theme={{
+                    colors: {
+                      background: '#FFFFFF',
+                    },
+                  }}
+                />
               </View>
 
-              {/* Login Button */}
+              <View style={styles.termsContainer}>
+                <View style={styles.checkboxContainer}>
+                  <Checkbox
+                    status={agreeToTerms ? 'checked' : 'unchecked'}
+                    onPress={() => setAgreeToTerms(!agreeToTerms)}
+                    color="#005667"
+                  />
+                  <Text style={styles.termsText}>
+                    I agree to the{' '}
+                    <Text style={styles.termsLink}>Terms of Service</Text>
+                    {' '}and{' '}
+                    <Text style={styles.termsLink}>Privacy Policy</Text>
+                  </Text>
+                </View>
+              </View>
+
               <Button
                 mode="contained"
-                onPress={handleLogin}
-                style={styles.loginButton}
+                onPress={handleCreateAccount}
+                style={styles.createAccountButton}
                 contentStyle={styles.buttonContent}
                 labelStyle={styles.buttonText}
                 buttonColor="#005667"
               >
-                Login
+                Create Account
               </Button>
 
               <View style={styles.dividerContainer}>
@@ -167,39 +259,38 @@ const LoginPage = ({ navigation }) => {
                     <Ionicons name="logo-google" size={24} color="#FFFFFF" />
                   )}
                   style={[styles.socialButton, { backgroundColor: '#DB4437' }]}
-                  onPress={() => handleSocialLogin('Google')}
+                  onPress={() => handleSocialSignup('Google')}
                 />
                 <IconButton
                   icon={() => (
                     <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
                   )}
                   style={[styles.socialButton, { backgroundColor: '#4267B2' }]}
-                  onPress={() => handleSocialLogin('Facebook')}
+                  onPress={() => handleSocialSignup('Facebook')}
                 />
                 <IconButton
                   icon={() => (
                     <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
                   )}
                   style={[styles.socialButton, { backgroundColor: '#000000' }]}
-                  onPress={() => handleSocialLogin('Apple')}
+                  onPress={() => handleSocialSignup('Apple')}
                 />
               </View>
 
-              {/* Sign Up Link */}
-              <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>Don't have an account? </Text>
+              <View style={styles.loginContainer}>
+                <Text style={styles.loginText}>Already have an account? </Text>
                 <Text 
-                  style={styles.signupLink} 
-                  onPress={navigateToCreateAccount}
+                  style={styles.loginLink} 
+                  onPress={navigateToLogin}
                 >
-                  Create Account
+                  Login
                 </Text>
               </View>
             </View>
           </Surface>
         </ScrollView>
       </LinearGradient>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -212,24 +303,12 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 20,
   },
   header: {
     alignItems: 'center',
     marginBottom: 40,
-  },
-  logoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   title: {
     fontSize: 32,
@@ -247,10 +326,19 @@ const styles = StyleSheet.create({
   formContainer: {
     borderRadius: 24,
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 10,
+    marginHorizontal: 40,
   },
   form: {
     padding: 30,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  nameInputContainer: {
+    flex: 1,
+    marginRight: 10,
   },
   inputContainer: {
     marginBottom: 20,
@@ -265,27 +353,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     fontSize: 16,
   },
-  optionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  termsContainer: {
     marginBottom: 30,
   },
   checkboxContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
-  checkboxText: {
+  termsText: {
     fontSize: 14,
     color: '#807979',
     marginLeft: 4,
+    flex: 1,
+    lineHeight: 20,
   },
-  forgotPassword: {
-    fontSize: 14,
+  termsLink: {
     color: '#005667',
     fontWeight: '600',
   },
-  loginButton: {
+  createAccountButton: {
     borderRadius: 16,
     marginBottom: 30,
     elevation: 3,
@@ -339,20 +425,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-  signupContainer: {
+  loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  signupText: {
+  loginText: {
     fontSize: 16,
     color: '#807979',
   },
-  signupLink: {
+  loginLink: {
     fontSize: 16,
     color: '#005667',
     fontWeight: 'bold',
   },
 });
 
-export default LoginPage;
+export default CreateAccountPage;
