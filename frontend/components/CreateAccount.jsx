@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useReducer } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,25 +10,40 @@ import {
   Button,
   Text,
   Surface,
+  Checkbox,
   IconButton,
   Divider,
-  Checkbox,
 } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const CreateAccountPage = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+const initialState = {
+  fullName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  showPassword: false,
+  showConfirmPassword: false,
+  agreeToTerms: false,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'TOGGLE':
+      return { ...state, [action.field]: !state[action.field] };
+    default:
+      return state;
+  }
+}
+
+const CreateAccount = ({ navigation }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleCreateAccount = () => {
-    console.log('Create Account pressed', { firstName, lastName, email, password, confirmPassword });
+    const { fullName, email, password, confirmPassword } = state;
+    console.log('Create Account pressed', { fullName, email, password, confirmPassword });
   };
 
   const handleSocialSignup = (provider) => {
@@ -47,74 +62,50 @@ const CreateAccountPage = ({ navigation }) => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}>
         <ScrollView
+          style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentInsetAdjustmentBehavior="always"
           showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
+          <View style={styles.header} >
             <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join us today</Text>
           </View>
 
           <Surface style={styles.formContainer} elevation={8}>
             <View style={styles.form}>
 
-              <View style={styles.nameRow}>
-                <View style={styles.nameInputContainer}>
-                  <Text style={styles.inputLabel}>First Name</Text>
-                  <TextInput
-                    mode="outlined"
-                    value={firstName}
-                    onChangeText={setFirstName}
-                    placeholder="First name"
-                    left={
-                      <TextInput.Icon
-                        icon={() => (
-                          <Ionicons name="person-outline" size={20} color="#005667" />
-                        )}
-                      />
-                    }
-                    style={styles.input}
-                    outlineColor="#F3F3F6"
-                    activeOutlineColor="#005667"
-                    theme={{
-                      colors: {
-                        background: '#FFFFFF',
-                      },
-                    }}
-                  />
-                </View>
-
-                <View style={styles.nameInputContainer}>
-                  <Text style={styles.inputLabel}>Last Name</Text>
-                  <TextInput
-                    mode="outlined"
-                    value={lastName}
-                    onChangeText={setLastName}
-                    placeholder="Last name"
-                    left={
-                      <TextInput.Icon
-                        icon={() => (
-                          <Ionicons name="person-outline" size={20} color="#005667" />
-                        )}
-                      />
-                    }
-                    style={styles.input}
-                    outlineColor="#F3F3F6"
-                    activeOutlineColor="#005667"
-                    theme={{
-                      colors: {
-                        background: '#FFFFFF',
-                      },
-                    }}
-                  />
-                </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Full Name</Text>
+                <TextInput
+                  mode="outlined"
+                  value={state.fullName}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'fullName', value: v })}
+                  placeholder="Enter your full name"
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons name="person-outline" size={20} color="#005667" />
+                      )}
+                    />
+                  }
+                  style={styles.input}
+                  outlineColor="#F3F3F6"
+                  activeOutlineColor="#005667"
+                  theme={{
+                    colors: {
+                      background: '#FFFFFF',
+                    },
+                  }}
+                />
               </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Email Address</Text>
                 <TextInput
                   mode="outlined"
-                  value={email}
-                  onChangeText={setEmail}
+                  value={state.email}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'email', value: v })}
                   placeholder="Enter your email"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -140,10 +131,10 @@ const CreateAccountPage = ({ navigation }) => {
                 <Text style={styles.inputLabel}>Password</Text>
                 <TextInput
                   mode="outlined"
-                  value={password}
-                  onChangeText={setPassword}
+                  value={state.password}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'password', value: v })}
                   placeholder="Enter your password"
-                  secureTextEntry={!showPassword}
+                  secureTextEntry={!state.showPassword}
                   left={
                     <TextInput.Icon
                       icon={() => (
@@ -159,12 +150,12 @@ const CreateAccountPage = ({ navigation }) => {
                     <TextInput.Icon
                       icon={() => (
                         <Ionicons
-                          name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                          name={state.showPassword ? 'eye-off-outline' : 'eye-outline'}
                           size={20}
                           color="#807979"
                         />
                       )}
-                      onPress={() => setShowPassword(!showPassword)}
+                      onPress={() => dispatch({ type: 'TOGGLE', field: 'showPassword' })}
                     />
                   }
                   style={styles.input}
@@ -182,10 +173,10 @@ const CreateAccountPage = ({ navigation }) => {
                 <Text style={styles.inputLabel}>Confirm Password</Text>
                 <TextInput
                   mode="outlined"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                  value={state.confirmPassword}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: v })}
                   placeholder="Confirm your password"
-                  secureTextEntry={!showConfirmPassword}
+                  secureTextEntry={!state.showConfirmPassword}
                   left={
                     <TextInput.Icon
                       icon={() => (
@@ -201,12 +192,12 @@ const CreateAccountPage = ({ navigation }) => {
                     <TextInput.Icon
                       icon={() => (
                         <Ionicons
-                          name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                          name={state.showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                           size={20}
                           color="#807979"
                         />
                       )}
-                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onPress={() => dispatch({ type: 'TOGGLE', field: 'showConfirmPassword' })}
                     />
                   }
                   style={styles.input}
@@ -223,8 +214,8 @@ const CreateAccountPage = ({ navigation }) => {
               <View style={styles.termsContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    status={agreeToTerms ? 'checked' : 'unchecked'}
-                    onPress={() => setAgreeToTerms(!agreeToTerms)}
+                    status={state.agreeToTerms ? 'checked' : 'unchecked'}
+                    onPress={() => dispatch({ type: 'TOGGLE', field: 'agreeToTerms' })}
                     color="#005667"
                   />
                   <Text style={styles.termsText}>
@@ -303,8 +294,12 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
+    paddingBottom: 80,
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
     alignItems: 'center',
@@ -326,20 +321,12 @@ const styles = StyleSheet.create({
   formContainer: {
     borderRadius: 24,
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 40,
+    marginHorizontal: 20,
   },
   form: {
     padding: 30,
   },
-  nameRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  nameInputContainer: {
-    flex: 1,
-    marginRight: 10,
-  },
+  // removed first/last name row styles
   inputContainer: {
     marginBottom: 20,
   },
@@ -441,4 +428,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateAccountPage;
+export default CreateAccount;

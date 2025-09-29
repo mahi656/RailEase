@@ -187,10 +187,10 @@ const LoginPage = ({ navigation }) => {
 
               {/* Sign Up Link */}
               <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>Don't have an account? </Text>
+                <Text style={styles.signupText}  >Don't have an account? </Text>
                 <Text 
                   style={styles.signupLink} 
-                  onPress={navigateToCreateAccount}
+                  onPress={() => navigation.navigate('CreateAccount')}
                 >
                   Create Account
                 </Text>
