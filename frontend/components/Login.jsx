@@ -5,6 +5,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import {
   TextInput,
@@ -130,7 +131,7 @@ const LoginPage = ({ navigation }) => {
                 />
               </View>
 
-              {/* Remember Me & Forgot Password */}
+             
               <View style={styles.optionsRow}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
@@ -140,10 +141,12 @@ const LoginPage = ({ navigation }) => {
                   />
                   <Text style={styles.checkboxText}>Remember Me</Text>
                 </View>
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                <Text style={styles.forgotPassword}
+                onPress={()=>navigation.navigate('Forgot')}
+                >Forgot Password?</Text>
               </View>
 
-              {/* Login Button */}
+              
               <Button
                 mode="contained"
                 onPress={handleLogin}
@@ -353,6 +356,7 @@ const styles = StyleSheet.create({
     color: '#005667',
     fontWeight: 'bold',
   },
+  
 });
 
 export default LoginPage;

@@ -20,6 +20,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 const initialState = {
   fullName: '',
   email: '',
+  otp: '',
+  isOtpSent: false,
+  isOtpVerified: false,
   password: '',
   confirmPassword: '',
   showPassword: false,
@@ -42,8 +45,8 @@ const CreateAccount = ({ navigation }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleCreateAccount = () => {
-    const { fullName, email, password, confirmPassword } = state;
-    console.log('Create Account pressed', { fullName, email, password, confirmPassword });
+    const { fullName, email, otp, isOtpVerified, password, confirmPassword } = state;
+    console.log('Create Account pressed', { fullName, email, otp, isOtpVerified, password, confirmPassword });
   };
 
   const handleSocialSignup = (provider) => {
@@ -64,8 +67,6 @@ const CreateAccount = ({ navigation }) => {
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
           contentInsetAdjustmentBehavior="always"
           showsVerticalScrollIndicator={false}>
           <View style={styles.header} >
@@ -125,7 +126,59 @@ const CreateAccount = ({ navigation }) => {
                     },
                   }}
                 />
+                <View style={styles.otpButtonsRow}>
+                  <Button
+                    mode="outlined"
+                    onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpSent', value: true })}
+                    style={styles.otpButton}
+                    textColor="#005667"
+                  >
+                    {state.isOtpSent ? 'Resend OTP' : 'Send OTP'}
+                  </Button>
+                </View>
               </View>
+
+              {state.isOtpSent && (
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>OTP</Text>
+                  <TextInput
+                    mode="outlined"
+                    value={state.otp}
+                    onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'otp', value: v.replace(/\D/g, '').slice(0, 6) })}
+                    placeholder="Enter 6-digit code"
+                    keyboardType="number-pad"
+                    left={
+                      <TextInput.Icon
+                        icon={() => (
+                          <Ionicons name="key-outline" size={20} color="#005667" />
+                        )}
+                      />
+                    }
+                    style={styles.input}
+                    outlineColor="#F3F3F6"
+                    activeOutlineColor="#005667"
+                    theme={{
+                      colors: {
+                        background: '#FFFFFF',
+                      },
+                    }}
+                  />
+                  <View style={styles.otpButtonsRow}>
+                    <Button
+                      mode="outlined"
+                      onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpVerified', value: true })}
+                      disabled={state.otp.length < 4}
+                      style={styles.otpButton}
+                      textColor="#005667"
+                    >
+                      Verify OTP
+                    </Button>
+                    {state.isOtpVerified && (
+                      <Text style={styles.otpVerifiedText}>Verified</Text>
+                    )}
+                  </View>
+                </View>
+              )}
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Password</Text>
@@ -377,6 +430,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
+  },
+  otpButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 12,
+  },
+  otpButton: {
+    borderRadius: 12,
+  },
+  otpVerifiedText: {
+    color: '#10B981',
+    fontWeight: '700',
   },
   dividerContainer: {
     flexDirection: 'row',
