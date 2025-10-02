@@ -28,6 +28,8 @@ const LoginPage = ({ navigation }) => {
 
   const handleLogin = () => {
     console.log('Login pressed', { email, password });
+    // Navigate to the main app with tabs after successful login
+    navigation.navigate('MainApp');
   };
 
   const handleSocialLogin = (provider) => {
