@@ -9,8 +9,6 @@ const Forgot = ({ navigation }) => {
 
   const handleReset = () => {
     console.log('Password reset requested for', email);
-    // Removed navigation to Login page
-    // Will only show a console log for now
   };
 
   return (

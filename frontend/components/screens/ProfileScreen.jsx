@@ -1,10 +1,21 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Text, Avatar, Button, Surface, Divider } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
+
+  const handleLogout = () => {
+    // Implement your logout logic here
+    // For example, clearing user session, tokens, etc.
+    console.log('Logging out...');
+
+    // Redirect to the Login page
+    navigation.navigate('Login');
+  };
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -86,6 +97,7 @@ const ProfileScreen = () => {
 
           <Button 
             mode="outlined" 
+            onPress={handleLogout}
             style={styles.logoutButton}
             contentStyle={styles.logoutButtonContent}
             labelStyle={styles.logoutButtonText}
