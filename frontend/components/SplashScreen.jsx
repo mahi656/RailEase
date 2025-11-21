@@ -1,28 +1,29 @@
-import React from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import React from "react";
+import { View, Image, StyleSheet, Dimensions } from "react-native";
 
 const SplashScreen = () => {
   return (
-    <View style={styles.container}>
+    <View style={styles.main}>
       <Image
-        source={require('../photos/train.png')}
-        style={styles.image}
-        resizeMode="cover"
+        source={require("../photos/train.png")}
+        style={styles.bgImage}
       />
     </View>
   );
 };
 
+const { width, height } = Dimensions.get("window");
+
 const styles = StyleSheet.create({
-  container: {
+  main: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000', // Black background in case image doesn't cover entire screen
+    backgroundColor: "black",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  image: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+  bgImage: {
+    width: width,
+    height: height,
   },
 });
 

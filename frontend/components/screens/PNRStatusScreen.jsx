@@ -1,32 +1,23 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const PNRStatusScreen = () => {
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#F3F6FF', '#F3F6FF']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
-        <View style={styles.content}>
-          <Text style={styles.title}>PNR Status</Text>
-          <Text style={styles.demoText}>This is a demo page for PNR Status</Text>
-          <Text style={styles.demoText}>The actual PNR functionality will be implemented later</Text>
-        </View>
-      </LinearGradient>
+      <View style={styles.content}>
+        <Text style={styles.title}>PNR Status</Text>
+        <Text style={styles.demoText}>This is a demo page for PNR Status</Text>
+        <Text style={styles.demoText}>The actual PNR functionality will be implemented later</Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { 
-    flex: 1 
-  },
-  gradient: { 
-    flex: 1 
+    flex: 1,
+    backgroundColor: '#F3F6FF', 
   },
   content: {
     flex: 1,
