@@ -7,7 +7,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#005667', '#192031']}
+        colors={['#F3F6FF', '#F3F6FF']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}>
@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#192031',
     marginBottom: 20,
   },
   demoText: {
     fontSize: 18,
-    color: '#FFFFFF',
+    color: '#192031',
     textAlign: 'center',
     marginBottom: 10,
     opacity: 0.8

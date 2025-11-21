@@ -1,52 +1,24 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useState } from "react";
+import { View, Text, Button, ScrollView } from "react-native";
+import fetchTrainBetweenStations from "../api/fetchTrainBetweenStations";
 
-const MyBookingsScreen = () => {
+export default function MyBookingsScreen() {
+  const [result, setResult] = useState(null);
+
+  const getData = async () => {
+    const data = await fetchTrainBetweenStations("harda", "bhopal", "2025-11-06");
+    setResult(data);
+  };
+
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#005667', '#192031']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
-        <View style={styles.content}>
-          <Text style={styles.title}>My Bookings</Text>
-          <Text style={styles.demoText}>This is a demo page for My Bookings</Text>
-          <Text style={styles.demoText}>The actual booking functionality will be implemented later</Text>
-        </View>
-      </LinearGradient>
-    </View>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+      <Button title="Check Trains" onPress={getData} />
+
+      {result && (
+        <Text style={{ marginTop: 20, fontSize: 12 }}>
+          {JSON.stringify(result, null, 2)}
+        </Text>
+      )}
+    </ScrollView>
   );
-};
-
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1 
-  },
-  gradient: { 
-    flex: 1 
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 20,
-  },
-  demoText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 10,
-    opacity: 0.8
-  }
-});
-
-export default MyBookingsScreen;
+}

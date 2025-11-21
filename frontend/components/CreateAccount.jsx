@@ -379,7 +379,6 @@ const styles = StyleSheet.create({
   form: {
     padding: 30,
   },
-  // removed first/last name row styles
   inputContainer: {
     marginBottom: 20,
   },
