@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   TextInput,
@@ -17,7 +18,8 @@ import {
   Checkbox,
 } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 const LoginPage = ({ navigation }) => {
@@ -26,19 +28,65 @@ const LoginPage = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Login pressed', { email, password });
-    // Navigate to the main app with tabs after successful login
-    navigation.navigate('MainApp');
+  // Load saved email if remember me was checked
+  useEffect(() => {
+    const loadSavedEmail = async () => {
+      try {
+        const savedRememberMe = await AsyncStorage.getItem('rememberMe');
+        if (savedRememberMe === 'true') {
+          const savedEmail = await AsyncStorage.getItem('savedEmail');
+          if (savedEmail) {
+            setEmail(savedEmail);
+            setRememberMe(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved email:', error);
+      }
+    };
+    loadSavedEmail();
+  }, []);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
+    try {
+      const usersJson = await AsyncStorage.getItem('users');
+      const users = usersJson ? JSON.parse(usersJson) : [];
+      const user = users.find(u => u.email === email.trim());
+      if (!user) {
+        Alert.alert('Error', 'User not found. Please create an account.');
+        return;
+      }
+      if (user.password !== password) {
+        Alert.alert('Error', 'Invalid password');
+        return;
+      }
+      const userData = {
+        name: user.fullName || user.name || email.split('@')[0],
+        email: user.email,
+      };
+      
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      if (rememberMe) {
+        await AsyncStorage.setItem('rememberMe', 'true');
+        await AsyncStorage.setItem('savedEmail', email);
+      } else {
+        await AsyncStorage.removeItem('rememberMe');
+        await AsyncStorage.removeItem('savedEmail');
+      }
+      navigation.navigate('MainApp');
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Failed to login. Please try again.');
+    }
   };
 
   const handleSocialLogin = (provider) => {
     console.log(`${provider} login pressed`);
-  };
-
-  const navigateToCreateAccount = () => {
-    // navigation.navigate('CreateAccount'); // For React Navigation
-    console.log('Navigate to Create Account');
   };
 
   return (
@@ -46,11 +94,8 @@ const LoginPage = ({ navigation }) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <LinearGradient
-        colors={['#005667', '#192031']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
+        style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
@@ -75,13 +120,13 @@ const LoginPage = ({ navigation }) => {
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#005667" />
+                        <Ionicons name="mail-outline" size={20} color="#64b5f6" />
                       )}
                     />
                   }
                   style={styles.input}
                   outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  activeOutlineColor="#192031"
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -105,7 +150,7 @@ const LoginPage = ({ navigation }) => {
                         <Ionicons
                           name="lock-closed-outline"
                           size={20}
-                          color="#005667"
+                          color="#64b5f6"
                         />
                       )}
                     />
@@ -124,7 +169,7 @@ const LoginPage = ({ navigation }) => {
                   }
                   style={styles.input}
                   outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  activeOutlineColor="#192031"
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -139,7 +184,7 @@ const LoginPage = ({ navigation }) => {
                   <Checkbox
                     status={rememberMe ? 'checked' : 'unchecked'}
                     onPress={() => setRememberMe(!rememberMe)}
-                    color="#005667"
+                    color="#64b5f6"
                   />
                   <Text style={styles.checkboxText}>Remember Me</Text>
                 </View>
@@ -155,7 +200,7 @@ const LoginPage = ({ navigation }) => {
                 style={styles.loginButton}
                 contentStyle={styles.buttonContent}
                 labelStyle={styles.buttonText}
-                buttonColor="#005667"
+                buttonColor="#192031"
               >
                 Login
               </Button>
@@ -203,7 +248,7 @@ const LoginPage = ({ navigation }) => {
             </View>
           </Surface>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -239,7 +284,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: 'black',
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -287,14 +332,14 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     fontSize: 14,
-    color: '#005667',
+    color: '#192031',
     fontWeight: '600',
   },
   loginButton: {
     borderRadius: 16,
     marginBottom: 30,
     elevation: 3,
-    shadowColor: '#005667',
+    shadowColor: '#192031',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -355,7 +400,7 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontSize: 16,
-    color: '#005667',
+    color: '#192031',
     fontWeight: 'bold',
   },
   

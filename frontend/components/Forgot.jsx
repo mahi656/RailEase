@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Text, TextInput, Button, Surface } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
+// import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 const Forgot = ({ navigation }) => {
@@ -13,17 +13,11 @@ const Forgot = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#005667', '#192031']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+      <View
+        style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
             <Text style={styles.title}>Forgot Password</Text>
@@ -44,13 +38,13 @@ const Forgot = ({ navigation }) => {
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#005667" />
+                        <Ionicons name="mail-outline" size={20} color="#64b5f6" />
                       )}
                     />
                   }
                   style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  outlineColor="#192013"
+                  activeOutlineColor="#192013"
                   theme={{
                     colors: { background: '#FFFFFF' },
                   }}
@@ -63,7 +57,7 @@ const Forgot = ({ navigation }) => {
                 style={styles.resetButton}
                 contentStyle={styles.buttonContent}
                 labelStyle={styles.buttonText}
-                buttonColor="#005667"
+                buttonColor="#192031"
               >
                 Send Reset Link
               </Button>
@@ -74,7 +68,7 @@ const Forgot = ({ navigation }) => {
             </View>
           </Surface>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </View>
   );
 };
@@ -86,14 +80,14 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingTop: 40,
     paddingBottom: 80,
   },
   header: { alignItems: 'center', marginBottom: 40 },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: 'black',
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -106,7 +100,7 @@ const styles = StyleSheet.create({
   resetButton: { borderRadius: 16, marginTop: 10 },
   buttonContent: { paddingVertical: 8 },
   buttonText: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF' },
-  backToLogin: { marginTop: 16, textAlign: 'center', color: '#005667', fontWeight: '600' },
+  backToLogin: { marginTop: 16, textAlign: 'center', color: '#192031', fontWeight: '600' },
 });
 
 export default Forgot;

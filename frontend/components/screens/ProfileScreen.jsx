@@ -1,85 +1,222 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Text, Avatar, Button, Surface, Divider } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Text, Avatar, Button, Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Login from '../Login';
+import CreateAccount from '../CreateAccount';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
-  const handleLogout = () => {
-    console.log('Logging out...');
-    navigation.navigate('Login');
+  const checkLoginStatus = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setIsLoggedIn(true);
+        setUserName(user.name || user.fullName || 'User');
+        setUserEmail(user.email || '');
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error('Error checking login status:', error);
+      setIsLoggedIn(false);
+    }
   };
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('user');
+      setIsLoggedIn(false);
+      setUserName('');
+      setUserEmail('');
+      setShowCreateAccount(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+  if (!isLoggedIn) {
+    if (showCreateAccount) {
+      return (
+        <CreateAccount 
+          navigation={{
+            ...navigation,
+            navigate: (route) => {
+              if (route === 'Login') {
+                setShowCreateAccount(false);
+              } else {
+                navigation.navigate(route);
+              }
+            }
+          }} 
+        />
+      );
+    }
+    return (
+      <Login 
+        navigation={{
+          ...navigation,
+          navigate: (route) => {
+            if (route === 'CreateAccount') {
+              setShowCreateAccount(true);
+            } else if (route === 'MainApp') {
+              checkLoginStatus();
+              navigation.navigate(route);
+            } else {
+              navigation.navigate(route);
+            }
+          }
+        }} 
+      />
+    );
+  }
+
+  // Profile View
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContainer}
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Text style={styles.headerTime}>9:41</Text>
+          <View style={styles.headerIcons}>
+            <Ionicons name="cellular" size={16} color="#000" />
+            <Ionicons name="wifi" size={16} color="#000" />
+            <Ionicons name="battery-full" size={16} color="#000" />
+          </View>
+        </View>
+        <View style={styles.headerBottom}>
+          <View style={{ width: 24 }} />
+          <Text style={styles.headerTitle}>Profile</Text>
+          <TouchableOpacity>
+            <Ionicons name="settings-outline" size={24} color="#192031" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <ScrollView 
+        contentContainerStyle={styles.profileContainer}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Avatar.Text 
-            size={80} 
-            label="MS" 
-            backgroundColor="#807979" 
-            color="#FFFFFF" 
-          />
-          <Text style={styles.name}>Mahi Sawner</Text>
-          <Text style={styles.email}>mahi.sawner@example.com</Text>
-        </View>
+        {/* Profile Header Card */}
+        <Card style={styles.profileHeaderCard}>
+          <Card.Content style={styles.profileHeaderContent}>
+            <View style={styles.avatarContainer}>
+              <Avatar.Text 
+                size={120} 
+                label={userName.substring(0, 2).toUpperCase()} 
+                backgroundColor="#4A90E2" 
+                color="#FFFFFF"
+                style={styles.avatar}
+              />
+              <View style={styles.avatarBadge}>
+                <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+              </View>
+            </View>
+            <Text style={styles.name}>{userName}</Text>
+          </Card.Content>
+        </Card>
 
-        <Surface style={styles.card} elevation={4}>
-          <View style={styles.menuItem}>
-            <Ionicons name="person-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Personal Information</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-          <Divider style={styles.divider} />
-          <View style={styles.menuItem}>
-            <Ionicons name="card-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Payment Methods</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-          <Divider style={styles.divider} />
-          <View style={styles.menuItem}>
-            <Ionicons name="location-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Saved Addresses</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-          <Divider style={styles.divider} />
-          <View style={styles.menuItem}>
-            <Ionicons name="notifications-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Notifications</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-        </Surface>
+        {/* Account Information */}
+        <Card style={styles.sectionCard}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>Account Information</Text>
+            <Divider style={styles.divider} />
+            
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuItemLeft}>
+                <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+                  <Ionicons name="person-outline" size={20} color="#4A90E2" />
+                </View>
+                <View style={styles.menuItemText}>
+                  <Text style={styles.menuItemTitle}>Personal Information</Text>
+                  <Text style={styles.menuItemSubtitle}>Update your personal details</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
 
-        <Surface style={styles.card} elevation={4}>
-          <View style={styles.menuItem}>
-            <Ionicons name="help-circle-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Help & Support</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-          <Divider style={styles.divider} />
-          <View style={styles.menuItem}>
-            <Ionicons name="document-text-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Terms & Conditions</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-          <Divider style={styles.divider} />
-          <View style={styles.menuItem}>
-            <Ionicons name="shield-outline" size={24} color="#005667" />
-            <Text style={styles.menuText}>Privacy Policy</Text>
-            <Ionicons name="chevron-forward" size={20} color="#5E6C84" />
-          </View>
-        </Surface>
+            <Divider style={styles.itemDivider} />
 
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuItemLeft}>
+                <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+                  <Ionicons name="mail-outline" size={20} color="#4CAF50" />
+                </View>
+                <View style={styles.menuItemText}>
+                  <Text style={styles.menuItemTitle}>Email Address</Text>
+                  <Text style={styles.menuItemSubtitle}>{userEmail}</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <Divider style={styles.itemDivider} />
+
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuItemLeft}>
+                <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
+                  <Ionicons name="lock-closed-outline" size={20} color="#FF9800" />
+                </View>
+                <View style={styles.menuItemText}>
+                  <Text style={styles.menuItemTitle}>Change Password</Text>
+                  <Text style={styles.menuItemSubtitle}>Update your password</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+          </Card.Content>
+        </Card>
+
+        {/* Support */}
+        <Card style={styles.sectionCard}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>Support</Text>
+            <Divider style={styles.divider} />
+            
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuItemLeft}>
+                <View style={[styles.iconContainer, { backgroundColor: '#E1F5FE' }]}>
+                  <Ionicons name="help-circle-outline" size={20} color="#03A9F4" />
+                </View>
+                <View style={styles.menuItemText}>
+                  <Text style={styles.menuItemTitle}>Help & Support</Text>
+                  <Text style={styles.menuItemSubtitle}>Get help with your account</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <Divider style={styles.itemDivider} />
+
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuItemLeft}>
+                <View style={[styles.iconContainer, { backgroundColor: '#FFF9C4' }]}>
+                  <Ionicons name="document-text-outline" size={20} color="#FBC02D" />
+                </View>
+                <View style={styles.menuItemText}>
+                  <Text style={styles.menuItemTitle}>Terms & Privacy</Text>
+                  <Text style={styles.menuItemSubtitle}>View terms and privacy policy</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+          </Card.Content>
+        </Card>
+
+        {/* Logout Button */}
         <Button 
           mode="outlined" 
           onPress={handleLogout}
           style={styles.logoutButton}
+          buttonColor="#FFFFFF"
+          textColor="#FF3B30"
           contentStyle={styles.logoutButtonContent}
           labelStyle={styles.logoutButtonText}
           icon={() => <Ionicons name="log-out-outline" size={20} color="#FF3B30" />}
@@ -92,67 +229,191 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-    backgroundColor: '#F3F6FF', 
+    backgroundColor: '#F3F6FF',
   },
-  scrollView: { 
-    flex: 1 
-  },
-  scrollContainer: {
-    flexGrow: 1,
+  header: {
+    backgroundColor: '#FFFFFF',
+    paddingTop: 50,
+    paddingBottom: 15,
     paddingHorizontal: 20,
-    paddingTop: 40,
-    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
-  header: { 
-    alignItems: 'center', 
-    marginTop: 20,
-    marginBottom: 30 
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  name: {
-    fontSize: 24,
+  headerTime: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  headerBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#192031',
-    marginTop: 16,
-    marginBottom: 4,
+  },
+  profileContainer: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  profileHeaderCard: {
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+    overflow: 'hidden',
+  },
+  profileHeaderContent: {
+    padding: 30,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 20,
+  },
+  avatar: {
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  avatarBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#4CAF50',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  name: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#192031',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   email: {
-    fontSize: 14,
-    color: '#192031',
-    opacity: 0.8,
-  },
-  card: {
-    borderRadius: 16,
+    fontSize: 16,
+    color: '#666',
     marginBottom: 16,
+    textAlign: 'center',
+  },
+  memberBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  memberText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FF9800',
+  },
+  sectionCard: {
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
     overflow: 'hidden',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#192031',
+    marginBottom: 12,
+  },
+  divider: {
+    marginBottom: 12,
+    backgroundColor: '#F0F0F0',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
   },
-  menuText: {
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
-    fontSize: 16,
-    color: '#192031',
-    marginLeft: 16,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#F0F0F0',
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  menuItemText: {
+    flex: 1,
+  },
+  menuItemTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#192031',
+    marginBottom: 4,
+  },
+  menuItemSubtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  itemDivider: {
+    marginLeft: 56,
+    backgroundColor: '#F5F5F5',
   },
   logoutButton: {
     borderColor: '#FF3B30',
-    borderRadius: 8,
-    marginTop: 8,
+    borderRadius: 12,
+    marginTop: 20,
+    borderWidth: 2,
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   logoutButtonContent: {
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   logoutButtonText: {
     fontSize: 16,
+    fontWeight: '600',
     color: '#FF3B30',
   },
 });

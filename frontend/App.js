@@ -8,6 +8,7 @@ import Forgot from './components/Forgot';
 import SplashScreen from './components/SplashScreen';
 import MainTabNavigator from './components/MainTabNavigator';
 
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -25,7 +26,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="MainApp"
         screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="CreateAccount" component={CreateAccount} />

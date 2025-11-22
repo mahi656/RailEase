@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  Alert,
 } from 'react-native';
 import {
   TextInput,
@@ -15,7 +16,8 @@ import {
   Divider,
 } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { LinearGradient } from 'expo-linear-gradient';
 
 const initialState = {
   fullName: '',
@@ -44,9 +46,88 @@ function reducer(state, action) {
 const CreateAccount = ({ navigation }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleCreateAccount = () => {
-    const { fullName, email, otp, isOtpVerified, password, confirmPassword } = state;
-    console.log('Create Account pressed', { fullName, email, otp, isOtpVerified, password, confirmPassword });
+  const handleCreateAccount = async () => {
+    const { fullName, email, otp, isOtpVerified, password, confirmPassword, agreeToTerms } = state;
+    
+    // Validation
+    if (!fullName.trim()) {
+      Alert.alert('Error', 'Please enter your full name');
+      return;
+    }
+    
+    if (!email.trim()) {
+      Alert.alert('Error', 'Please enter your email');
+      return;
+    }
+    
+    if (!isOtpVerified) {
+      Alert.alert('Error', 'Please verify your OTP');
+      return;
+    }
+    
+    if (!password.trim()) {
+      Alert.alert('Error', 'Please enter a password');
+      return;
+    }
+    
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+    
+    if (!agreeToTerms) {
+      Alert.alert('Error', 'Please agree to the Terms of Service and Privacy Policy');
+      return;
+    }
+
+    try {
+      // Get existing users
+      const usersJson = await AsyncStorage.getItem('users');
+      const users = usersJson ? JSON.parse(usersJson) : [];
+      
+      // Check if user already exists
+      const existingUser = users.find(u => u.email === email.trim());
+      if (existingUser) {
+        Alert.alert('Error', 'An account with this email already exists');
+        return;
+      }
+      
+      // Create new user
+      const newUser = {
+        fullName: fullName.trim(),
+        name: fullName.trim(),
+        email: email.trim(),
+        password: password, // In real app, hash this password
+      };
+      
+      // Add to users array
+      users.push(newUser);
+      await AsyncStorage.setItem('users', JSON.stringify(users));
+      
+      // Save current user to AsyncStorage
+      const userData = {
+        name: newUser.fullName,
+        email: newUser.email,
+      };
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      
+      Alert.alert('Success', 'Account created successfully!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate('MainApp');
+          }
+        }
+      ]);
+    } catch (error) {
+      console.error('Create account error:', error);
+      Alert.alert('Error', 'Failed to create account. Please try again.');
+    }
   };
 
   const handleSocialSignup = (provider) => {
@@ -59,11 +140,8 @@ const CreateAccount = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#005667', '#192031']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+      <View
+        style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
@@ -86,13 +164,13 @@ const CreateAccount = ({ navigation }) => {
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="person-outline" size={20} color="#005667" />
+                        <Ionicons name="person-outline" size={20} color="#64b5f6" />
                       )}
                     />
                   }
                   style={styles.input}
                   outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  activeOutlineColor="#192031"
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -113,13 +191,13 @@ const CreateAccount = ({ navigation }) => {
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#005667" />
+                        <Ionicons name="mail-outline" size={20} color="#64b5f6" />
                       )}
                     />
                   }
                   style={styles.input}
                   outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  activeOutlineColor="#192031"
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -131,7 +209,7 @@ const CreateAccount = ({ navigation }) => {
                     mode="outlined"
                     onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpSent', value: true })}
                     style={styles.otpButton}
-                    textColor="#005667"
+                    textColor="#0d47a1"
                   >
                     {state.isOtpSent ? 'Resend OTP' : 'Send OTP'}
                   </Button>
@@ -149,14 +227,14 @@ const CreateAccount = ({ navigation }) => {
                     keyboardType="number-pad"
                     left={
                       <TextInput.Icon
-                        icon={() => (
-                          <Ionicons name="key-outline" size={20} color="#005667" />
-                        )}
+                      icon={() => (
+                        <Ionicons name="key-outline" size={20} color="#64b5f6" />
+                      )}
                       />
                     }
                     style={styles.input}
                     outlineColor="#F3F3F6"
-                    activeOutlineColor="#005667"
+                    activeOutlineColor="#192031"
                     theme={{
                       colors: {
                         background: '#FFFFFF',
@@ -169,7 +247,7 @@ const CreateAccount = ({ navigation }) => {
                       onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpVerified', value: true })}
                       disabled={state.otp.length < 4}
                       style={styles.otpButton}
-                      textColor="#005667"
+                      textColor="#0d47a1"
                     >
                       Verify OTP
                     </Button>
@@ -194,7 +272,7 @@ const CreateAccount = ({ navigation }) => {
                         <Ionicons
                           name="lock-closed-outline"
                           size={20}
-                          color="#005667"
+                          color="#64b5f6"
                         />
                       )}
                     />
@@ -205,7 +283,7 @@ const CreateAccount = ({ navigation }) => {
                         <Ionicons
                           name={state.showPassword ? 'eye-off-outline' : 'eye-outline'}
                           size={20}
-                          color="#807979"
+                          color="#64b5f6"
                         />
                       )}
                       onPress={() => dispatch({ type: 'TOGGLE', field: 'showPassword' })}
@@ -213,7 +291,7 @@ const CreateAccount = ({ navigation }) => {
                   }
                   style={styles.input}
                   outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  activeOutlineColor="#192031"
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -236,7 +314,7 @@ const CreateAccount = ({ navigation }) => {
                         <Ionicons
                           name="lock-closed-outline"
                           size={20}
-                          color="#005667"
+                          color="#64b5f6"
                         />
                       )}
                     />
@@ -247,7 +325,7 @@ const CreateAccount = ({ navigation }) => {
                         <Ionicons
                           name={state.showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                           size={20}
-                          color="#807979"
+                          color="#64b5f6"
                         />
                       )}
                       onPress={() => dispatch({ type: 'TOGGLE', field: 'showConfirmPassword' })}
@@ -255,7 +333,7 @@ const CreateAccount = ({ navigation }) => {
                   }
                   style={styles.input}
                   outlineColor="#F3F3F6"
-                  activeOutlineColor="#005667"
+                  activeOutlineColor="#192031"
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -269,7 +347,7 @@ const CreateAccount = ({ navigation }) => {
                   <Checkbox
                     status={state.agreeToTerms ? 'checked' : 'unchecked'}
                     onPress={() => dispatch({ type: 'TOGGLE', field: 'agreeToTerms' })}
-                    color="#005667"
+                    color="#192031"
                   />
                   <Text style={styles.termsText}>
                     I agree to the{' '}
@@ -286,7 +364,7 @@ const CreateAccount = ({ navigation }) => {
                 style={styles.createAccountButton}
                 contentStyle={styles.buttonContent}
                 labelStyle={styles.buttonText}
-                buttonColor="#005667"
+                buttonColor="#192031"
               >
                 Create Account
               </Button>
@@ -333,7 +411,7 @@ const CreateAccount = ({ navigation }) => {
             </View>
           </Surface>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </View>
   );
 };
@@ -361,7 +439,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: 'black',
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -407,14 +485,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   termsLink: {
-    color: '#005667',
+    color: '#192031',
     fontWeight: '600',
   },
   createAccountButton: {
     borderRadius: 16,
     marginBottom: 30,
     elevation: 3,
-    shadowColor: '#005667',
+    shadowColor: '#192031',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -489,7 +567,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 16,
-    color: '#005667',
+    color: '#192031',
     fontWeight: 'bold',
   },
 });
