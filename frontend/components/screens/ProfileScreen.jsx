@@ -7,12 +7,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from '../Login';
 import CreateAccount from '../CreateAccount';
 
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+
 
   const checkLoginStatus = async () => {
     try {
@@ -81,7 +83,6 @@ const ProfileScreen = () => {
   // Profile View
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.headerTime}>9:41</Text>
@@ -102,9 +103,8 @@ const ProfileScreen = () => {
 
       <ScrollView 
         contentContainerStyle={styles.profileContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Profile Header Card */}
+        showsVerticalScrollIndicator={false}>
+     
         <Card style={styles.profileHeaderCard}>
           <Card.Content style={styles.profileHeaderContent}>
             <View style={styles.avatarContainer}>
@@ -120,10 +120,10 @@ const ProfileScreen = () => {
               </View>
             </View>
             <Text style={styles.name}>{userName}</Text>
+            
           </Card.Content>
         </Card>
 
-        {/* Account Information */}
         <Card style={styles.sectionCard}>
           <Card.Content>
             <Text style={styles.sectionTitle}>Account Information</Text>
@@ -174,7 +174,8 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
 
-        {/* Support */}
+      
+
         <Card style={styles.sectionCard}>
           <Card.Content>
             <Text style={styles.sectionTitle}>Support</Text>
@@ -210,7 +211,6 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
 
-        {/* Logout Button */}
         <Button 
           mode="outlined" 
           onPress={handleLogout}

@@ -2,13 +2,11 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity,Dimensions } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
-  const navigation = useNavigation();
-  const topImage = "https://plus.unsplash.com/premium_photo-1673443701408-38bae3c1aec0?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  const bannerImageUri = "https://plus.unsplash.com/premium_photo-1673443701408-38bae3c1aec0?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   const scrollimages = [
     "https://images.unsplash.com/photo-1582217900003-2b19c0e3a7d0?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aW5kaWFuJTIwcmFpbHdheXxlbnwwfHwwfHx8MA%3D%3D",
     "https://images.unsplash.com/photo-1571893652827-a3e071ab463b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
@@ -17,6 +15,8 @@ const HomeScreen = () => {
     "https://images.unsplash.com/photo-1561904573-fbb5a5882d34?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzB8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
     "https://images.unsplash.com/photo-1656468864556-3adc42bdbd3c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzZ8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D"
   ]
+  
+  // Quick action cards data
   const quickActions = [
     {
       id: 1,
@@ -52,17 +52,21 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Header Section */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Welcome to</Text>
           <Text style={styles.appTitle}>RailEase</Text>
           <Text style={styles.tagline}>Your Journey, Our Priority</Text>
         </View>
 
+        {/* Banner Image Section */}
         <View style={styles.imageContainer}>
           <Image 
-              source={{ uri: topImage }}
+              source={{ uri: bannerImageUri }}
               style={styles.bannerImage}
+              resizeMode="cover"
             />
         </View>
 
@@ -74,7 +78,8 @@ const HomeScreen = () => {
               <TouchableOpacity 
                 key={action.id}
                 style={styles.actionCard}
-                activeOpacity={0.7}>
+                activeOpacity={0.7}
+              >
                 <View style={[styles.iconContainer, { backgroundColor: `${action.color}20` }]}>
                   <Ionicons 
                     name={action.icon} 
@@ -89,6 +94,7 @@ const HomeScreen = () => {
           </View>
         </View>
 
+        {/* Search Train Section */}
         <Card style={styles.searchCard}>
           <Card.Content>
             <View style={styles.searchHeader}>
@@ -102,7 +108,7 @@ const HomeScreen = () => {
               mode="contained" 
               style={styles.searchButton}
               labelStyle={styles.searchButtonText}
-              onPress={() => navigation.navigate('My Bookings')}
+              onPress={() => {}}
             >
               Search Now
             </Button>
