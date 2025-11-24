@@ -84,21 +84,6 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.headerTime}>9:41</Text>
-          <View style={styles.headerIcons}>
-            <Ionicons name="cellular" size={16} color="#000" />
-            <Ionicons name="wifi" size={16} color="#000" />
-            <Ionicons name="battery-full" size={16} color="#000" />
-          </View>
-        </View>
-        <View style={styles.headerBottom}>
-          <View style={{ width: 24 }} />
-          <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity>
-            <Ionicons name="settings-outline" size={24} color="#192031" />
-          </TouchableOpacity>
-        </View>
       </View>
 
       <ScrollView 

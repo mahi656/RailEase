@@ -300,48 +300,6 @@ const CreateAccount = ({ navigation }) => {
                 />
               </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Confirm Password</Text>
-                <TextInput
-                  mode="outlined"
-                  value={state.confirmPassword}
-                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: v })}
-                  placeholder="Confirm your password"
-                  secureTextEntry={!state.showConfirmPassword}
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons
-                          name="lock-closed-outline"
-                          size={20}
-                          color="#64b5f6"
-                        />
-                      )}
-                    />
-                  }
-                  right={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons
-                          name={state.showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                          size={20}
-                          color="#64b5f6"
-                        />
-                      )}
-                      onPress={() => dispatch({ type: 'TOGGLE', field: 'showConfirmPassword' })}
-                    />
-                  }
-                  style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#192031"
-                  theme={{
-                    colors: {
-                      background: '#FFFFFF',
-                    },
-                  }}
-                />
-              </View>
-
               <View style={styles.termsContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
