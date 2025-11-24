@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,26 +7,21 @@ import {
   Platform,
   TouchableOpacity,
   Alert,
+  Image,
 } from 'react-native';
 import {
   TextInput,
   Button,
   Text,
-  Surface,
-  IconButton,
   Divider,
-  Checkbox,
 } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
 
 const LoginPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   // Load saved email if remember me was checked
   useEffect(() => {
@@ -37,7 +32,6 @@ const LoginPage = ({ navigation }) => {
           const savedEmail = await AsyncStorage.getItem('savedEmail');
           if (savedEmail) {
             setEmail(savedEmail);
-            setRememberMe(true);
           }
         }
       } catch (error) {
@@ -69,15 +63,10 @@ const LoginPage = ({ navigation }) => {
         name: user.fullName || user.name || email.split('@')[0],
         email: user.email,
       };
-      
+
       await AsyncStorage.setItem('user', JSON.stringify(userData));
-      if (rememberMe) {
-        await AsyncStorage.setItem('rememberMe', 'true');
-        await AsyncStorage.setItem('savedEmail', email);
-      } else {
-        await AsyncStorage.removeItem('rememberMe');
-        await AsyncStorage.removeItem('savedEmail');
-      }
+      await AsyncStorage.setItem('rememberMe', 'true');
+      await AsyncStorage.setItem('savedEmail', email);
       navigation.navigate('MainApp');
     } catch (error) {
       console.error('Login error:', error);
@@ -94,159 +83,148 @@ const LoginPage = ({ navigation }) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View
-        style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}
-      >
+      <View style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Login to your account</Text>
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Illustration */}
+          <View style={styles.illustrationContainer}>
+            <Image
+              source={require('../photos/Mobile-rafiki.png')}
+              style={styles.illustration}
+              resizeMode="contain"
+            />
           </View>
 
-          <Surface style={styles.formContainer} elevation={8}>
-            <View style={styles.form}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Log In</Text>
+            <Text style={styles.subtitle}>Enter valid user name & password to continue</Text>
+          </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email Address</Text>
-                <TextInput
-                  mode="outlined"
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#64b5f6" />
-                      )}
-                    />
-                  }
-                  style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#192031"
-                  theme={{
-                    colors: {
-                      background: '#FFFFFF',
-                    },
-                  }}
-                />
-              </View>
-
-              {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Password</Text>
-                <TextInput
-                  mode="outlined"
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Enter your password"
-                  secureTextEntry={!showPassword}
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons
-                          name="lock-closed-outline"
-                          size={20}
-                          color="#64b5f6"
-                        />
-                      )}
-                    />
-                  }
-                  right={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons
-                          name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                          size={20}
-                          color="#807979"
-                        />
-                      )}
-                      onPress={() => setShowPassword(!showPassword)}
-                    />
-                  }
-                  style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#192031"
-                  theme={{
-                    colors: {
-                      background: '#FFFFFF',
-                    },
-                  }}
-                />
-              </View>
-
-             
-              <View style={styles.optionsRow}>
-                <View style={styles.checkboxContainer}>
-                  <Checkbox
-                    status={rememberMe ? 'checked' : 'unchecked'}
-                    onPress={() => setRememberMe(!rememberMe)}
-                    color="#64b5f6"
+          <View style={styles.form}>
+            {/* User Name Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                mode="outlined"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="User name"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons name="person-outline" size={20} color="#666666" />
+                    )}
                   />
-                  <Text style={styles.checkboxText}>Remember Me</Text>
-                </View>
-                <Text style={styles.forgotPassword}
-                onPress={()=>navigation.navigate('Forgot')}
-                >Forgot Password?</Text>
-              </View>
-
-              
-              <Button
-                mode="contained"
-                onPress={handleLogin}
-                style={styles.loginButton}
-                contentStyle={styles.buttonContent}
-                labelStyle={styles.buttonText}
-                buttonColor="#192031"
-              >
-                Login
-              </Button>
-
-              <View style={styles.dividerContainer}>
-                <Divider style={styles.divider} />
-                <Text style={styles.dividerText}>Or continue with</Text>
-                <Divider style={styles.divider} />
-              </View>
-
-              <View style={styles.socialContainer}>
-                <IconButton
-                  icon={() => (
-                    <Ionicons name="logo-google" size={24} color="#FFFFFF" />
-                  )}
-                  style={[styles.socialButton, { backgroundColor: '#DB4437' }]}
-                  onPress={() => handleSocialLogin('Google')}
-                />
-                <IconButton
-                  icon={() => (
-                    <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
-                  )}
-                  style={[styles.socialButton, { backgroundColor: '#4267B2' }]}
-                  onPress={() => handleSocialLogin('Facebook')}
-                />
-                <IconButton
-                  icon={() => (
-                    <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
-                  )}
-                  style={[styles.socialButton, { backgroundColor: '#000000' }]}
-                  onPress={() => handleSocialLogin('Apple')}
-                />
-              </View>
-
-              {/* Sign Up Link */}
-              <View style={styles.signupContainer}>
-                <Text style={styles.signupText}  >Don't have an account? </Text>
-                <Text 
-                  style={styles.signupLink} 
-                  onPress={() => navigation.navigate('CreateAccount')}
-                >
-                  Create Account
-                </Text>
-              </View>
+                }
+                style={styles.input}
+                outlineColor="#E0E0E0"
+                activeOutlineColor="#2979FF"
+                outlineStyle={{ borderRadius: 12 }}
+                theme={{
+                  colors: {
+                    background: '#FFFFFF',
+                  },
+                }}
+              />
             </View>
-          </Surface>
+
+            {/* Password Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                mode="outlined"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Password"
+                secureTextEntry={!showPassword}
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons
+                        name="lock-closed-outline"
+                        size={20}
+                        color="#666666"
+                      />
+                    )}
+                  />
+                }
+                right={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={20}
+                        color="#666666"
+                      />
+                    )}
+                    onPress={() => setShowPassword(!showPassword)}
+                  />
+                }
+                style={styles.input}
+                outlineColor="#E0E0E0"
+                activeOutlineColor="#2979FF"
+                outlineStyle={{ borderRadius: 12 }}
+                theme={{
+                  colors: {
+                    background: '#FFFFFF',
+                  },
+                }}
+              />
+            </View>
+
+            {/* Forget Password Link */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Forgot')}
+              style={styles.forgetPasswordLink}
+            >
+              <Text style={styles.forgetPasswordText}>Forget password</Text>
+            </TouchableOpacity>
+
+            {/* Login Button */}
+            <Button
+              mode="contained"
+              onPress={handleLogin}
+              style={styles.loginButton}
+              contentStyle={styles.buttonContent}
+              labelStyle={styles.buttonText}
+              buttonColor="#2979FF"
+            >
+              Login
+            </Button>
+
+            {/* Divider */}
+            <View style={styles.dividerContainer}>
+              <Divider style={styles.divider} />
+              <Text style={styles.dividerText}>Or Continue with</Text>
+              <Divider style={styles.divider} />
+            </View>
+
+            {/* Social Login Buttons */}
+            <View style={styles.socialContainer}>
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialLogin('Google')}
+              >
+                <Ionicons name="logo-google" size={32} color="#000000" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialLogin('Apple')}
+              >
+                <Ionicons name="logo-apple" size={32} color="#000000" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Sign Up Link */}
+            <View style={styles.signupContainer}>
+              <Text style={styles.signupText}>Haven't any account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
+                <Text style={styles.signupLink}>Sign up</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
@@ -263,87 +241,60 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingTop: Platform.OS === 'ios' ? 40 : 20,
     paddingBottom: 20,
+  },
+  illustrationContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  illustration: {
+    width: 250,
+    height: 200,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginBottom: 30,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: 'black',
+    color: '#192031',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#F3F6FF',
+    fontSize: 14,
+    color: '#666666',
     textAlign: 'center',
-    opacity: 0.8,
-  },
-  formContainer: {
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 10,
   },
   form: {
-    padding: 30,
+    paddingHorizontal: 0,
   },
   inputContainer: {
     marginBottom: 20,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#192031',
-    marginBottom: 8,
-  },
   input: {
     backgroundColor: '#FFFFFF',
     fontSize: 16,
+    borderRadius: 12,
   },
-  optionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 30,
+  forgetPasswordLink: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
   },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkboxText: {
+  forgetPasswordText: {
     fontSize: 14,
-    color: '#807979',
-    marginLeft: 4,
-  },
-  forgotPassword: {
-    fontSize: 14,
-    color: '#192031',
-    fontWeight: '600',
+    color: '#2979FF',
+    fontWeight: '500',
   },
   loginButton: {
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 30,
-    elevation: 3,
-    shadowColor: '#192031',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    elevation: 4,
+    shadowColor: '#2979FF',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -351,8 +302,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#FFFFFF',
   },
   dividerContainer: {
@@ -363,11 +314,11 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: '#F3F3F6',
+    backgroundColor: '#E0E0E0',
   },
   dividerText: {
     fontSize: 14,
-    color: '#807979',
+    color: '#666666',
     marginHorizontal: 16,
   },
   socialContainer: {
@@ -377,17 +328,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   socialButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    elevation: 3,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    padding: 12,
+    borderRadius: 50,
+    backgroundColor: '#F5F5F5',
+  },
+  socialButtonText: {
+    fontSize: 14,
+    color: '#192031',
+    fontWeight: '500',
   },
   signupContainer: {
     flexDirection: 'row',
@@ -395,15 +343,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signupText: {
-    fontSize: 16,
-    color: '#807979',
+    fontSize: 14,
+    color: '#666666',
   },
   signupLink: {
-    fontSize: 16,
-    color: '#192031',
-    fontWeight: 'bold',
+    fontSize: 14,
+    color: '#2979FF',
+    fontWeight: '600',
   },
-  
 });
 
 export default LoginPage;

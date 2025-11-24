@@ -5,19 +5,20 @@ import {
   ScrollView,
   Platform,
   Alert,
+  TouchableOpacity,
+  Image,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {
   TextInput,
   Button,
   Text,
-  Surface,
   Checkbox,
   IconButton,
   Divider,
 } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { LinearGradient } from 'expo-linear-gradient';
 
 const initialState = {
   fullName: '',
@@ -48,38 +49,38 @@ const CreateAccount = ({ navigation }) => {
 
   const handleCreateAccount = async () => {
     const { fullName, email, otp, isOtpVerified, password, confirmPassword, agreeToTerms } = state;
-    
+
     // Validation
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
     }
-    
+
     if (!email.trim()) {
       Alert.alert('Error', 'Please enter your email');
       return;
     }
-    
+
     if (!isOtpVerified) {
       Alert.alert('Error', 'Please verify your OTP');
       return;
     }
-    
+
     if (!password.trim()) {
       Alert.alert('Error', 'Please enter a password');
       return;
     }
-    
+
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-    
+
     if (!agreeToTerms) {
       Alert.alert('Error', 'Please agree to the Terms of Service and Privacy Policy');
       return;
@@ -89,14 +90,14 @@ const CreateAccount = ({ navigation }) => {
       // Get existing users
       const usersJson = await AsyncStorage.getItem('users');
       const users = usersJson ? JSON.parse(usersJson) : [];
-      
+
       // Check if user already exists
       const existingUser = users.find(u => u.email === email.trim());
       if (existingUser) {
         Alert.alert('Error', 'An account with this email already exists');
         return;
       }
-      
+
       // Create new user
       const newUser = {
         fullName: fullName.trim(),
@@ -104,18 +105,18 @@ const CreateAccount = ({ navigation }) => {
         email: email.trim(),
         password: password, // In real app, hash this password
       };
-      
+
       // Add to users array
       users.push(newUser);
       await AsyncStorage.setItem('users', JSON.stringify(users));
-      
+
       // Save current user to AsyncStorage
       const userData = {
         name: newUser.fullName,
         email: newUser.email,
       };
       await AsyncStorage.setItem('user', JSON.stringify(userData));
-      
+
       Alert.alert('Success', 'Account created successfully!', [
         {
           text: 'OK',
@@ -139,65 +140,118 @@ const CreateAccount = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View
-        style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
           contentInsetAdjustmentBehavior="always"
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.header} >
-            <Text style={styles.title}>Create Account</Text>
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Illustration */}
+          <View style={styles.illustrationContainer}>
+            <Image
+              source={require('../photos/Sign up-cuate.png')}
+              style={styles.illustration}
+              resizeMode="contain"
+            />
           </View>
 
-          <Surface style={styles.formContainer} elevation={8}>
-            <View style={styles.form}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Sign Up</Text>
+            <Text style={styles.subtitle}>Use proper information to continue</Text>
+          </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Full Name</Text>
+          <View style={styles.form}>
+            {/* Full Name Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                mode="outlined"
+                value={state.fullName}
+                onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'fullName', value: v })}
+                placeholder="Full name"
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons name="person-outline" size={20} color="#666666" />
+                    )}
+                  />
+                }
+                style={styles.input}
+                outlineColor="#E0E0E0"
+                activeOutlineColor="#2979FF"
+                outlineStyle={{ borderRadius: 12 }}
+                theme={{
+                  colors: {
+                    background: '#FFFFFF',
+                  },
+                }}
+              />
+            </View>
+
+            {/* Email Input */}
+            <View style={styles.inputContainer}>
+              <View style={styles.emailRow}>
                 <TextInput
                   mode="outlined"
-                  value={state.fullName}
-                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'fullName', value: v })}
-                  placeholder="Enter your full name"
+                  value={state.email}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'email', value: v })}
+                  placeholder="Email address"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="person-outline" size={20} color="#64b5f6" />
+                        <Ionicons name="mail-outline" size={20} color="#666666" />
                       )}
                     />
                   }
-                  style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#192031"
+                  style={[styles.input, { flex: 1 }]}
+                  outlineColor="#E0E0E0"
+                  activeOutlineColor="#2979FF"
+                  outlineStyle={{ borderRadius: 12 }}
                   theme={{
                     colors: {
                       background: '#FFFFFF',
                     },
                   }}
                 />
+                <Button
+                  mode="contained"
+                  onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpSent', value: true })}
+                  style={styles.sendOtpButton}
+                  contentStyle={styles.sendOtpButtonContent}
+                  labelStyle={styles.sendOtpButtonLabel}
+                  buttonColor="#2979FF"
+                >
+                  {state.isOtpSent ? 'Resend OTP' : 'Send OTP'}
+                </Button>
               </View>
+            </View>
 
+            {/* OTP Input */}
+            {state.isOtpSent && (
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email Address</Text>
                 <TextInput
                   mode="outlined"
-                  value={state.email}
-                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'email', value: v })}
-                  placeholder="Enter your email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
+                  value={state.otp}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'otp', value: v.replace(/\D/g, '').slice(0, 6) })}
+                  placeholder="Enter 6-digit code"
+                  keyboardType="number-pad"
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#64b5f6" />
+                        <Ionicons name="key-outline" size={20} color="#666666" />
                       )}
                     />
                   }
                   style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#192031"
+                  outlineColor="#E0E0E0"
+                  activeOutlineColor="#2979FF"
+                  outlineStyle={{ borderRadius: 12 }}
                   theme={{
                     colors: {
                       background: '#FFFFFF',
@@ -207,170 +261,126 @@ const CreateAccount = ({ navigation }) => {
                 <View style={styles.otpButtonsRow}>
                   <Button
                     mode="outlined"
-                    onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpSent', value: true })}
+                    onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpVerified', value: true })}
+                    disabled={state.otp.length < 4}
                     style={styles.otpButton}
-                    textColor="#0d47a1"
+                    textColor="#2979FF"
                   >
-                    {state.isOtpSent ? 'Resend OTP' : 'Send OTP'}
+                    Verify OTP
                   </Button>
+                  {state.isOtpVerified && (
+                    <Text style={styles.otpVerifiedText}>Verified</Text>
+                  )}
                 </View>
               </View>
+            )}
 
-              {state.isOtpSent && (
-                <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>OTP</Text>
-                  <TextInput
-                    mode="outlined"
-                    value={state.otp}
-                    onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'otp', value: v.replace(/\D/g, '').slice(0, 6) })}
-                    placeholder="Enter 6-digit code"
-                    keyboardType="number-pad"
-                    left={
-                      <TextInput.Icon
-                      icon={() => (
-                        <Ionicons name="key-outline" size={20} color="#64b5f6" />
-                      )}
+            {/* Password Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                mode="outlined"
+                value={state.password}
+                onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'password', value: v })}
+                placeholder="Password"
+                secureTextEntry={!state.showPassword}
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons
+                        name="lock-closed-outline"
+                        size={20}
+                        color="#666666"
                       />
-                    }
-                    style={styles.input}
-                    outlineColor="#F3F3F6"
-                    activeOutlineColor="#192031"
-                    theme={{
-                      colors: {
-                        background: '#FFFFFF',
-                      },
-                    }}
-                  />
-                  <View style={styles.otpButtonsRow}>
-                    <Button
-                      mode="outlined"
-                      onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpVerified', value: true })}
-                      disabled={state.otp.length < 4}
-                      style={styles.otpButton}
-                      textColor="#0d47a1"
-                    >
-                      Verify OTP
-                    </Button>
-                    {state.isOtpVerified && (
-                      <Text style={styles.otpVerifiedText}>Verified</Text>
                     )}
-                  </View>
-                </View>
-              )}
-
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Password</Text>
-                <TextInput
-                  mode="outlined"
-                  value={state.password}
-                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'password', value: v })}
-                  placeholder="Enter your password"
-                  secureTextEntry={!state.showPassword}
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons
-                          name="lock-closed-outline"
-                          size={20}
-                          color="#64b5f6"
-                        />
-                      )}
-                    />
-                  }
-                  right={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons
-                          name={state.showPassword ? 'eye-off-outline' : 'eye-outline'}
-                          size={20}
-                          color="#64b5f6"
-                        />
-                      )}
-                      onPress={() => dispatch({ type: 'TOGGLE', field: 'showPassword' })}
-                    />
-                  }
-                  style={styles.input}
-                  outlineColor="#F3F3F6"
-                  activeOutlineColor="#192031"
-                  theme={{
-                    colors: {
-                      background: '#FFFFFF',
-                    },
-                  }}
-                />
-              </View>
-
-              <View style={styles.termsContainer}>
-                <View style={styles.checkboxContainer}>
-                  <Checkbox
-                    status={state.agreeToTerms ? 'checked' : 'unchecked'}
-                    onPress={() => dispatch({ type: 'TOGGLE', field: 'agreeToTerms' })}
-                    color="#192031"
                   />
-                  <Text style={styles.termsText}>
-                    I agree to the{' '}
-                    <Text style={styles.termsLink}>Terms of Service</Text>
-                    {' '}and{' '}
-                    <Text style={styles.termsLink}>Privacy Policy</Text>
-                  </Text>
-                </View>
-              </View>
+                }
+                right={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons
+                        name={state.showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={20}
+                        color="#666666"
+                      />
+                    )}
+                    onPress={() => dispatch({ type: 'TOGGLE', field: 'showPassword' })}
+                  />
+                }
+                style={styles.input}
+                outlineColor="#E0E0E0"
+                activeOutlineColor="#2979FF"
+                outlineStyle={{ borderRadius: 12 }}
+                theme={{
+                  colors: {
+                    background: '#FFFFFF',
+                  },
+                }}
+              />
+            </View>
 
-              <Button
-                mode="contained"
-                onPress={handleCreateAccount}
-                style={styles.createAccountButton}
-                contentStyle={styles.buttonContent}
-                labelStyle={styles.buttonText}
-                buttonColor="#192031"
-              >
-                Create Account
-              </Button>
-
-              <View style={styles.dividerContainer}>
-                <Divider style={styles.divider} />
-                <Text style={styles.dividerText}>Or continue with</Text>
-                <Divider style={styles.divider} />
-              </View>
-
-              <View style={styles.socialContainer}>
-                <IconButton
-                  icon={() => (
-                    <Ionicons name="logo-google" size={24} color="#FFFFFF" />
-                  )}
-                  style={[styles.socialButton, { backgroundColor: '#DB4437' }]}
-                  onPress={() => handleSocialSignup('Google')}
+            {/* Terms & Conditions */}
+            <View style={styles.termsContainer}>
+              <View style={styles.checkboxContainer}>
+                <Checkbox
+                  status={state.agreeToTerms ? 'checked' : 'unchecked'}
+                  onPress={() => dispatch({ type: 'TOGGLE', field: 'agreeToTerms' })}
+                  color="#2979FF"
                 />
-                <IconButton
-                  icon={() => (
-                    <Ionicons name="logo-facebook" size={24} color="#FFFFFF" />
-                  )}
-                  style={[styles.socialButton, { backgroundColor: '#4267B2' }]}
-                  onPress={() => handleSocialSignup('Facebook')}
-                />
-                <IconButton
-                  icon={() => (
-                    <Ionicons name="logo-apple" size={24} color="#FFFFFF" />
-                  )}
-                  style={[styles.socialButton, { backgroundColor: '#000000' }]}
-                  onPress={() => handleSocialSignup('Apple')}
-                />
-              </View>
-
-              <View style={styles.loginContainer}>
-                <Text style={styles.loginText}>Already have an account? </Text>
-                <Text 
-                  style={styles.loginLink} 
-                  onPress={navigateToLogin}
-                >
-                  Login
+                <Text style={styles.termsText}>
+                  By signing up, you are agree to our{' '}
+                  <Text style={styles.termsLink}>Terms & Conditions</Text>
+                  {' '}and{' '}
+                  <Text style={styles.termsLink}>Privacy Policy</Text>
                 </Text>
               </View>
             </View>
-          </Surface>
+
+            {/* Create Account Button */}
+            <Button
+              mode="contained"
+              onPress={handleCreateAccount}
+              style={styles.createAccountButton}
+              contentStyle={styles.buttonContent}
+              labelStyle={styles.buttonText}
+              buttonColor="#2979FF"
+            >
+              Create Account
+            </Button>
+
+            {/* Divider */}
+            <View style={styles.dividerContainer}>
+              <Divider style={styles.divider} />
+              <Text style={styles.dividerText}>Or Continue with</Text>
+              <Divider style={styles.divider} />
+            </View>
+
+            {/* Social Login Buttons */}
+            <View style={styles.socialContainer}>
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialSignup('Google')}
+              >
+                <Ionicons name="logo-google" size={32} color="#000000" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.socialButton}
+                onPress={() => handleSocialSignup('Apple')}
+              >
+                <Ionicons name="logo-apple" size={32} color="#000000" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Login Link */}
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Already have an Account? </Text>
+              <TouchableOpacity onPress={navigateToLogin}>
+                <Text style={styles.loginLink}>Log in</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ScrollView>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -390,71 +400,66 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  illustrationContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  illustration: {
+    width: 250,
+    height: 200,
+  },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: 'black',
+    color: '#192031',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#F3F6FF',
+    fontSize: 14,
+    color: '#666666',
     textAlign: 'center',
-    opacity: 0.8,
-  },
-  formContainer: {
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
   },
   form: {
-    padding: 30,
+    paddingHorizontal: 0,
   },
   inputContainer: {
     marginBottom: 20,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#192031',
-    marginBottom: 8,
-  },
   input: {
     backgroundColor: '#FFFFFF',
     fontSize: 16,
+    borderRadius: 12,
   },
   termsContainer: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   termsText: {
-    fontSize: 14,
-    color: '#807979',
+    fontSize: 12,
+    color: '#666666',
     marginLeft: 4,
     flex: 1,
-    lineHeight: 20,
+    lineHeight: 18,
   },
   termsLink: {
-    color: '#192031',
+    color: '#2979FF',
     fontWeight: '600',
   },
   createAccountButton: {
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 30,
-    elevation: 3,
-    shadowColor: '#192031',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    elevation: 4,
+    shadowColor: '#2979FF',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -462,8 +467,27 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  emailRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+  },
+  sendOtpButton: {
+    borderRadius: 12,
+    justifyContent: 'center',
+    height: 50, // Match typical input height
+    marginTop: 6, // Align with input
+  },
+  sendOtpButtonContent: {
+    height: 50,
+  },
+  sendOtpButtonLabel: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#FFFFFF',
   },
   otpButtonsRow: {
@@ -479,6 +503,7 @@ const styles = StyleSheet.create({
   otpVerifiedText: {
     color: '#10B981',
     fontWeight: '700',
+    fontSize: 14,
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -488,11 +513,11 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: '#F3F3F6',
+    backgroundColor: '#E0E0E0',
   },
   dividerText: {
     fontSize: 14,
-    color: '#807979',
+    color: '#666666',
     marginHorizontal: 16,
   },
   socialContainer: {
@@ -502,17 +527,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   socialButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    elevation: 3,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    padding: 12,
+    borderRadius: 50,
+    backgroundColor: '#F5F5F5',
+  },
+  socialButtonText: {
+    fontSize: 14,
+    color: '#192031',
+    fontWeight: '500',
   },
   loginContainer: {
     flexDirection: 'row',
@@ -520,13 +542,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginText: {
-    fontSize: 16,
-    color: '#807979',
+    fontSize: 14,
+    color: '#666666',
   },
   loginLink: {
-    fontSize: 16,
-    color: '#192031',
-    fontWeight: 'bold',
+    fontSize: 14,
+    color: '#2979FF',
+    fontWeight: '600',
   },
 });
 

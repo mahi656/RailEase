@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
-import { Text, TextInput, Button, Surface } from 'react-native-paper';
-// import { LinearGradient } from 'expo-linear-gradient';
+import { View, StyleSheet, ScrollView, Platform, Image, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
+import { Text, TextInput, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 
 const Forgot = ({ navigation }) => {
@@ -9,100 +8,167 @@ const Forgot = ({ navigation }) => {
 
   const handleReset = () => {
     console.log('Password reset requested for', email);
+    // Add your OTP sending logic here
   };
 
   return (
-    <View style={styles.container}>
-      <View
-        style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <Text style={styles.title}>Forgot Password</Text>
-            <Text style={styles.subtitle}>Enter your email to receive a reset link</Text>
+          {/* Illustration */}
+          <View style={styles.illustrationContainer}>
+            <Image
+              source={require('../photos/Reset password-pana.png')}
+              style={styles.illustration}
+              resizeMode="contain"
+            />
           </View>
 
-          <Surface style={styles.formContainer} elevation={8}>
-            <View style={styles.form}>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email Address</Text>
-                <TextInput
-                  mode="outlined"
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#64b5f6" />
-                      )}
-                    />
-                  }
-                  style={styles.input}
-                  outlineColor="#192013"
-                  activeOutlineColor="#192013"
-                  theme={{
-                    colors: { background: '#FFFFFF' },
-                  }}
-                />
-              </View>
+          <View style={styles.header}>
+            <Text style={styles.title}>Forget Password</Text>
+            <Text style={styles.subtitle}>Don't worry it happens. Please enter the address associate with your account</Text>
+          </View>
 
-              <Button
-                mode="contained"
-                onPress={handleReset}
-                style={styles.resetButton}
-                contentStyle={styles.buttonContent}
-                labelStyle={styles.buttonText}
-                buttonColor="#192031"
-              >
-                Send Reset Link
-              </Button>
-
-              <Text style={styles.backToLogin} onPress={() => navigation.navigate('Login')}>
-                Back to Login
-              </Text>
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <TextInput
+                mode="outlined"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Email address"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                left={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Ionicons name="mail-outline" size={20} color="#666666" />
+                    )}
+                  />
+                }
+                style={styles.input}
+                outlineColor="#E0E0E0"
+                activeOutlineColor="#2979FF"
+                theme={{
+                  colors: { background: '#FFFFFF' },
+                }}
+                outlineStyle={{ borderRadius: 12 }}
+              />
             </View>
-          </Surface>
+
+            <Button
+              mode="contained"
+              onPress={handleReset}
+              style={styles.resetButton}
+              contentStyle={styles.buttonContent}
+              labelStyle={styles.buttonText}
+              buttonColor="#2979FF"
+            >
+              Send OTP
+            </Button>
+
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>You remember you password? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginLink}>Log in</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ScrollView>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  gradient: { flex: 1 },
-  scrollView: { flex: 1 },
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
   scrollContainer: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: 40,
-    paddingBottom: 80,
+    paddingTop: Platform.OS === 'ios' ? 40 : 20,
+    paddingBottom: 20,
   },
-  header: { alignItems: 'center', marginBottom: 40 },
+  illustrationContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  illustration: {
+    width: 250,
+    height: 200,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: 'black',
+    color: '#192031',
     marginBottom: 8,
     textAlign: 'center',
   },
-  subtitle: { fontSize: 16, color: '#F3F6FF', textAlign: 'center', opacity: 0.8 },
-  formContainer: { borderRadius: 24, backgroundColor: '#FFFFFF', marginHorizontal: 20 },
-  form: { padding: 30 },
-  inputContainer: { marginBottom: 20 },
-  inputLabel: { fontSize: 16, fontWeight: '600', color: '#192031', marginBottom: 8 },
-  input: { backgroundColor: '#FFFFFF', fontSize: 16 },
-  resetButton: { borderRadius: 16, marginTop: 10 },
-  buttonContent: { paddingVertical: 8 },
-  buttonText: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF' },
-  backToLogin: { marginTop: 16, textAlign: 'center', color: '#192031', fontWeight: '600' },
+  subtitle: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+  },
+  form: {
+    paddingHorizontal: 0,
+  },
+  inputContainer: {
+    marginBottom: 24,
+  },
+  input: {
+    backgroundColor: '#FFFFFF',
+    fontSize: 16,
+    borderRadius: 12,
+  },
+  resetButton: {
+    borderRadius: 12,
+    marginBottom: 30,
+    elevation: 4,
+    shadowColor: '#2979FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  buttonContent: {
+    paddingVertical: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  loginLink: {
+    fontSize: 14,
+    color: '#2979FF',
+    fontWeight: '600',
+  },
 });
 
 export default Forgot;
-
-

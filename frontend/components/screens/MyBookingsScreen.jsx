@@ -1,34 +1,14 @@
 import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { Text } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
+import { View, StyleSheet} from "react-native";
 import TestTrain from "./TestTrain";
 
 export default function MyBookingsScreen() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Bookings</Text>
-      </View>
-      <ScrollView 
-  showsVerticalScrollIndicator={false}
-  contentContainerStyle={styles.scrollContent}>
-  <View style={styles.emptyState} key="emptyState">
-    <Ionicons name="train-outline" size={64} color="#CCC" />
-    <Text style={styles.emptyText}>No bookings found</Text>
-    <Text style={styles.emptySubtext}>Your train bookings will appear here</Text>
-  </View>
-
-  <View style={{ height: 400, marginTop: 20 }} key="liveMap">
-    <TestTrain />
-  </View>
-</ScrollView>
-
+    <View style={styles.trainSearchContainer} key="trainSearch">
+      <TestTrain />
     </View>
-    
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -47,14 +27,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#192031",
   },
-  scrollContent: {
+  contentContainer: {
+    flex: 1,
     paddingBottom: 20,
   },
   emptyState: {
-    flex: 1,
+    flex: 0,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 100,
+    paddingVertical: 30,
   },
   emptyText: {
     fontSize: 18,
@@ -66,5 +47,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#CCC",
     marginTop: 10,
+  },
+  trainSearchContainer: {
+    flex: 1,
+    marginTop: 20,
   },
 });

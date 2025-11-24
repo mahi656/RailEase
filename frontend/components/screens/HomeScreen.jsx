@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity,Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
+
   const bannerImageUri = "https://plus.unsplash.com/premium_photo-1673443701408-38bae3c1aec0?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   const scrollimages = [
     "https://images.unsplash.com/photo-1582217900003-2b19c0e3a7d0?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aW5kaWFuJTIwcmFpbHdheXxlbnwwfHwwfHx8MA%3D%3D",
@@ -18,12 +21,8 @@ const HomeScreen = () => {
     "https://media.istockphoto.com/id/1281921560/photo/mumbai-suburban-railway.jpg?s=612x612&w=0&k=20&c=rpWL9mcwGckSizgK1AQyy2vMNrP5hXqrfG9SWAIBU9s=",
     "https://media.istockphoto.com/id/1395274264/photo/passenger-trains-siliguri-india-april-25-2022-a-passenger-train-standing-at-the-new.jpg?s=612x612&w=0&k=20&c=MmgGAqgJfd1s9XrXk7Ft5P7KBTuHwd6b5UTiRUf6Nws=",
     "https://media.istockphoto.com/id/1409049940/photo/mother-and-daughter-waiting-at-a-train-station-platform.jpg?s=612x612&w=0&k=20&c=V3dxLa77FEj1yVxMkwXCrPgN-BIRxRSq0qM_HizuuFs=",
-    
-
-
   ]
-  
-  // Quick action cards data
+
   const quickActions = [
     {
       id: 1,
@@ -57,7 +56,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -70,11 +69,11 @@ const HomeScreen = () => {
 
         {/* Banner Image Section */}
         <View style={styles.imageContainer}>
-          <Image 
-              source={{ uri: bannerImageUri }}
-              style={styles.bannerImage}
-              resizeMode="cover"
-            />
+          <Image
+            source={{ uri: bannerImageUri }}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
         </View>
 
         {/* Quick Actions Section */}
@@ -82,16 +81,16 @@ const HomeScreen = () => {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
             {quickActions.map((action) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={action.id}
                 style={styles.actionCard}
                 activeOpacity={0.7}
               >
                 <View style={[styles.iconContainer, { backgroundColor: `${action.color}20` }]}>
-                  <Ionicons 
-                    name={action.icon} 
-                    size={32} 
-                    color={action.color} 
+                  <Ionicons
+                    name={action.icon}
+                    size={32}
+                    color={action.color}
                   />
                 </View>
                 <Text style={styles.actionTitle}>{action.title}</Text>
@@ -111,11 +110,11 @@ const HomeScreen = () => {
             <Text style={styles.searchDescription}>
               Find trains between stations and book your tickets instantly
             </Text>
-            <Button 
-              mode="contained" 
+            <Button
+              mode="contained"
               style={styles.searchButton}
               labelStyle={styles.searchButtonText}
-              onPress={() => {}}
+              onPress={() => { navigation.navigate('My Bookings') }}
             >
               Search Now
             </Button>
@@ -124,12 +123,12 @@ const HomeScreen = () => {
 
         <View style={styles.featuredContainer}>
           <Text style={styles.sectionTitle}>Featured Images</Text>
-          <ScrollView 
-            horizontal={true} 
+          <ScrollView
+            horizontal={true}
             showsHorizontalScrollIndicator={true}>
-            {scrollimages.map((imgee,i)=>(
-              <Image 
-                source={{uri:imgee}}
+            {scrollimages.map((imgee, i) => (
+              <Image
+                source={{ uri: imgee }}
                 key={i}
                 style={styles.featuredImage}
                 resizeMode="cover"
@@ -143,9 +142,9 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-    backgroundColor: '#F3F6FF', 
+    backgroundColor: '#F3F6FF',
   },
   scrollContent: {
     paddingBottom: 20
