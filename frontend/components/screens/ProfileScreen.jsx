@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
-import { useNavigation} from '@react-navigation/native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Text, Avatar, Button, Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,7 +47,7 @@ const ProfileScreen = () => {
   if (!isLoggedIn) {
     if (showCreateAccount) {
       return (
-        <CreateAccount 
+        <CreateAccount
           navigation={{
             ...navigation,
             navigate: (route) => {
@@ -57,12 +57,12 @@ const ProfileScreen = () => {
                 navigation.navigate(route);
               }
             }
-          }} 
+          }}
         />
       );
     }
     return (
-      <Login 
+      <Login
         navigation={{
           ...navigation,
           navigate: (route) => {
@@ -75,7 +75,7 @@ const ProfileScreen = () => {
               navigation.navigate(route);
             }
           }
-        }} 
+        }}
       />
     );
   }
@@ -86,17 +86,17 @@ const ProfileScreen = () => {
       <View style={styles.header}>
       </View>
 
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.profileContainer}
         showsVerticalScrollIndicator={false}>
-     
+
         <Card style={styles.profileHeaderCard}>
           <Card.Content style={styles.profileHeaderContent}>
             <View style={styles.avatarContainer}>
-              <Avatar.Text 
-                size={120} 
-                label={userName.substring(0, 2).toUpperCase()} 
-                backgroundColor="#4A90E2" 
+              <Avatar.Text
+                size={120}
+                label={userName.substring(0, 2).toUpperCase()}
+                backgroundColor="#4A90E2"
                 color="#FFFFFF"
                 style={styles.avatar}
               />
@@ -105,7 +105,7 @@ const ProfileScreen = () => {
               </View>
             </View>
             <Text style={styles.name}>{userName}</Text>
-            
+
           </Card.Content>
         </Card>
 
@@ -113,7 +113,7 @@ const ProfileScreen = () => {
           <Card.Content>
             <Text style={styles.sectionTitle}>Account Information</Text>
             <Divider style={styles.divider} />
-            
+
             <TouchableOpacity style={styles.menuItem}>
               <View style={styles.menuItemLeft}>
                 <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
@@ -159,13 +159,13 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
 
-      
+
 
         <Card style={styles.sectionCard}>
           <Card.Content>
             <Text style={styles.sectionTitle}>Support</Text>
             <Divider style={styles.divider} />
-            
+
             <TouchableOpacity style={styles.menuItem}>
               <View style={styles.menuItemLeft}>
                 <View style={[styles.iconContainer, { backgroundColor: '#E1F5FE' }]}>
@@ -196,8 +196,8 @@ const ProfileScreen = () => {
           </Card.Content>
         </Card>
 
-        <Button 
-          mode="outlined" 
+        <Button
+          mode="outlined"
           onPress={handleLogout}
           style={styles.logoutButton}
           buttonColor="#FFFFFF"
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#FFFFFF',
-    paddingTop: 50,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 20 : 50,
     paddingBottom: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,

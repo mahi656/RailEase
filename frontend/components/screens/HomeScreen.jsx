@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, Platform, StatusBar } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -14,13 +14,13 @@ const HomeScreen = () => {
     "https://images.unsplash.com/photo-1582217900003-2b19c0e3a7d0?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aW5kaWFuJTIwcmFpbHdheXxlbnwwfHwwfHx8MA%3D%3D",
     "https://images.unsplash.com/photo-1571893652827-a3e071ab463b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
     "https://images.unsplash.com/photo-1726747062988-cd0b86c814e0?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjN8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
+    "https://images.unsplash.com/photo-1658360145811-ee613c18a20f?q=80&w=868&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://images.unsplash.com/photo-1612083111232-29f08821e47a?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjZ8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
     "https://images.unsplash.com/photo-1561904573-fbb5a5882d34?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzB8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
     "https://images.unsplash.com/photo-1656468864556-3adc42bdbd3c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzZ8fGluZGlhbiUyMHJhaWx3YXl8ZW58MHx8MHx8fDA%3D",
     "https://media.istockphoto.com/id/927826322/photo/passenger-train-at-chhatrapati-shivaji-maharaj-terminus-in-mumbai.jpg?s=612x612&w=0&k=20&c=AziJuyCrXmF0E3bu5Siy7JZYdMII-VulwVvDygtz_a4=",
     "https://media.istockphoto.com/id/1281921560/photo/mumbai-suburban-railway.jpg?s=612x612&w=0&k=20&c=rpWL9mcwGckSizgK1AQyy2vMNrP5hXqrfG9SWAIBU9s=",
     "https://media.istockphoto.com/id/1395274264/photo/passenger-trains-siliguri-india-april-25-2022-a-passenger-train-standing-at-the-new.jpg?s=612x612&w=0&k=20&c=MmgGAqgJfd1s9XrXk7Ft5P7KBTuHwd6b5UTiRUf6Nws=",
-    "https://media.istockphoto.com/id/1409049940/photo/mother-and-daughter-waiting-at-a-train-station-platform.jpg?s=612x612&w=0&k=20&c=V3dxLa77FEj1yVxMkwXCrPgN-BIRxRSq0qM_HizuuFs=",
   ]
 
   const quickActions = [
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#192031',
-    paddingTop: 50,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 20 : 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 25,

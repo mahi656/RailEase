@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet} from "react-native";
+import { View, StyleSheet, Platform, StatusBar } from "react-native";
 import TestTrain from "./TestTrain";
 
 export default function MyBookingsScreen() {
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 50,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 20 : 50,
     paddingBottom: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,

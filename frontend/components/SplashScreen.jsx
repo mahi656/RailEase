@@ -11,9 +11,7 @@ const SplashScreen = () => {
     </View>
   );
 };
-
 const { width, height } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
   main: {
     flex: 1,
