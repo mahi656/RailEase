@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   Image,
   KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import {
   TextInput,
   Button,
   Text,
   Checkbox,
-  IconButton,
   Divider,
 } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,14 +23,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const initialState = {
   fullName: '',
   email: '',
-  otp: '',
-  isOtpSent: false,
-  isOtpVerified: false,
   password: '',
   confirmPassword: '',
   showPassword: false,
   showConfirmPassword: false,
   agreeToTerms: false,
+  passwordValid: true,
+  emailValid: true,
+  confirmPasswordValid: true,
 };
 
 function reducer(state, action) {
@@ -39,6 +39,8 @@ function reducer(state, action) {
       return { ...state, [action.field]: action.value };
     case 'TOGGLE':
       return { ...state, [action.field]: !state[action.field] };
+    case 'VALIDATE_FIELD':
+      return { ...state, [action.field]: action.value };
     default:
       return state;
   }
@@ -47,8 +49,21 @@ function reducer(state, action) {
 const CreateAccount = ({ navigation }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const checkPassword = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  };
+
+  const checkEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
   const handleCreateAccount = async () => {
-    const { fullName, email, otp, isOtpVerified, password, confirmPassword, agreeToTerms } = state;
+    const { fullName, email, password, confirmPassword, agreeToTerms } = state;
+
+    // Dismiss keyboard first
+    Keyboard.dismiss();
 
     // Validation
     if (!fullName.trim()) {
@@ -61,8 +76,8 @@ const CreateAccount = ({ navigation }) => {
       return;
     }
 
-    if (!isOtpVerified) {
-      Alert.alert('Error', 'Please verify your OTP');
+    if (!checkEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
@@ -71,8 +86,11 @@ const CreateAccount = ({ navigation }) => {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+    if (!checkPassword(password)) {
+      Alert.alert(
+        'Error',
+        'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character'
+      );
       return;
     }
 
@@ -122,8 +140,8 @@ const CreateAccount = ({ navigation }) => {
           text: 'OK',
           onPress: () => {
             navigation.navigate('MainApp');
-          }
-        }
+          },
+        },
       ]);
     } catch (error) {
       console.error('Create account error:', error);
@@ -132,11 +150,18 @@ const CreateAccount = ({ navigation }) => {
   };
 
   const handleSocialSignup = (provider) => {
-    console.log(`${provider} signup pressed`);
+    Keyboard.dismiss(); // Dismiss keyboard when social signup is pressed
+    Alert.alert('Info', `${provider} signup would be implemented here`);
   };
 
   const navigateToLogin = () => {
+    Keyboard.dismiss(); // Dismiss keyboard when navigating to login
     navigation.navigate('Login');
+  };
+
+  // Add touch handlers to dismiss keyboard when tapping outside inputs
+  const handleScrollViewPress = () => {
+    Keyboard.dismiss();
   };
 
   return (
@@ -150,101 +175,40 @@ const CreateAccount = ({ navigation }) => {
           contentContainerStyle={styles.scrollContainer}
           contentInsetAdjustmentBehavior="always"
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled" // This allows taps to dismiss keyboard
         >
-          {/* Illustration */}
-          <View style={styles.illustrationContainer}>
-            <Image
-              source={require('../photos/Sign up-cuate.png')}
-              style={styles.illustration}
-              resizeMode="contain"
-            />
-          </View>
-
-          <View style={styles.header}>
-            <Text style={styles.title}>Sign Up</Text>
-            <Text style={styles.subtitle}>Use proper information to continue</Text>
-          </View>
-
-          <View style={styles.form}>
-            {/* Full Name Input */}
-            <View style={styles.inputContainer}>
-              <TextInput
-                mode="outlined"
-                value={state.fullName}
-                onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'fullName', value: v })}
-                placeholder="Full name"
-                left={
-                  <TextInput.Icon
-                    icon={() => (
-                      <Ionicons name="person-outline" size={20} color="#666666" />
-                    )}
-                  />
-                }
-                style={styles.input}
-                outlineColor="#E0E0E0"
-                activeOutlineColor="#2979FF"
-                outlineStyle={{ borderRadius: 12 }}
-                theme={{
-                  colors: {
-                    background: '#FFFFFF',
-                  },
-                }}
+          {/* Touchable wrapper to dismiss keyboard when tapping outside */}
+          <TouchableOpacity 
+            style={styles.touchableContainer}
+            activeOpacity={1} 
+            onPress={handleScrollViewPress}
+          >
+            {/* Illustration */}
+            <View style={styles.illustrationContainer}>
+              <Image
+                source={require('../photos/Sign up-cuate.png')}
+                style={styles.illustration}
+                resizeMode="contain"
               />
             </View>
 
-            {/* Email Input */}
-            <View style={styles.inputContainer}>
-              <View style={styles.emailRow}>
-                <TextInput
-                  mode="outlined"
-                  value={state.email}
-                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'email', value: v })}
-                  placeholder="Email address"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  left={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Ionicons name="mail-outline" size={20} color="#666666" />
-                      )}
-                    />
-                  }
-                  style={[styles.input, { flex: 1 }]}
-                  outlineColor="#E0E0E0"
-                  activeOutlineColor="#2979FF"
-                  outlineStyle={{ borderRadius: 12 }}
-                  theme={{
-                    colors: {
-                      background: '#FFFFFF',
-                    },
-                  }}
-                />
-                <Button
-                  mode="contained"
-                  onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpSent', value: true })}
-                  style={styles.sendOtpButton}
-                  contentStyle={styles.sendOtpButtonContent}
-                  labelStyle={styles.sendOtpButtonLabel}
-                  buttonColor="#2979FF"
-                >
-                  {state.isOtpSent ? 'Resend OTP' : 'Send OTP'}
-                </Button>
-              </View>
+            <View style={styles.header}>
+              <Text style={styles.title}>Sign Up</Text>
+              <Text style={styles.subtitle}>Use proper information to continue</Text>
             </View>
 
-            {/* OTP Input */}
-            {state.isOtpSent && (
+            <View style={styles.form}>
+              {/* Full Name Input */}
               <View style={styles.inputContainer}>
                 <TextInput
                   mode="outlined"
-                  value={state.otp}
-                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'otp', value: v.replace(/\D/g, '').slice(0, 6) })}
-                  placeholder="Enter 6-digit code"
-                  keyboardType="number-pad"
+                  value={state.fullName}
+                  onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'fullName', value: v })}
+                  placeholder="Full name"
                   left={
                     <TextInput.Icon
                       icon={() => (
-                        <Ionicons name="key-outline" size={20} color="#666666" />
+                        <Ionicons name="person-outline" size={20} color="#666666" />
                       )}
                     />
                   }
@@ -257,127 +221,224 @@ const CreateAccount = ({ navigation }) => {
                       background: '#FFFFFF',
                     },
                   }}
+                  blurOnSubmit={false}
+                  returnKeyType="next"
                 />
-                <View style={styles.otpButtonsRow}>
-                  <Button
-                    mode="outlined"
-                    onPress={() => dispatch({ type: 'SET_FIELD', field: 'isOtpVerified', value: true })}
-                    disabled={state.otp.length < 4}
-                    style={styles.otpButton}
-                    textColor="#2979FF"
-                  >
-                    Verify OTP
-                  </Button>
-                  {state.isOtpVerified && (
-                    <Text style={styles.otpVerifiedText}>Verified</Text>
-                  )}
+              </View>
+
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <TextInput
+                  mode="outlined"
+                  value={state.email}
+                  onChangeText={(v) => {
+                    dispatch({ type: 'SET_FIELD', field: 'email', value: v });
+                    dispatch({
+                      type: 'VALIDATE_FIELD',
+                      field: 'emailValid',
+                      value: checkEmail(v),
+                    });
+                  }}
+                  placeholder="Email address"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons name="mail-outline" size={20} color="#666666" />
+                      )}
+                    />
+                  }
+                  style={styles.input}
+                  outlineColor="#E0E0E0"
+                  activeOutlineColor="#2979FF"
+                  outlineStyle={{ borderRadius: 12 }}
+                  theme={{
+                    colors: {
+                      background: '#FFFFFF',
+                    },
+                  }}
+                  blurOnSubmit={false}
+                  returnKeyType="next"
+                />
+                {state.email.length > 0 && !state.emailValid && (
+                  <Text style={styles.errorText}>
+                    Please enter a valid email address.
+                  </Text>
+                )}
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputContainer}>
+                <TextInput
+                  mode="outlined"
+                  value={state.password}
+                  onChangeText={(v) => {
+                    dispatch({ type: 'SET_FIELD', field: 'password', value: v });
+                    dispatch({
+                      type: 'VALIDATE_FIELD',
+                      field: 'passwordValid',
+                      value: checkPassword(v),
+                    });
+                  }}
+                  placeholder="Password"
+                  secureTextEntry={!state.showPassword}
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons name="lock-closed-outline" size={20} color="#666666" />
+                      )}
+                    />
+                  }
+                  right={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons
+                          name={state.showPassword ? 'eye-off-outline' : 'eye-outline'}
+                          size={20}
+                          color="#666666"
+                        />
+                      )}
+                      onPress={() => dispatch({ type: 'TOGGLE', field: 'showPassword' })}
+                    />
+                  }
+                  style={styles.input}
+                  outlineColor="#E0E0E0"
+                  activeOutlineColor="#2979FF"
+                  outlineStyle={{ borderRadius: 12 }}
+                  theme={{
+                    colors: {
+                      background: '#FFFFFF',
+                    },
+                  }}
+                  blurOnSubmit={false}
+                  returnKeyType="next"
+                />
+                {!state.passwordValid && state.password.length > 0 && (
+                  <Text style={styles.errorText}>
+                    Password must be 8+ characters, include uppercase, lowercase, number & special symbol.
+                  </Text>
+                )}
+              </View>
+
+              {/* Confirm Password Input */}
+              <View style={styles.inputContainer}>
+                <TextInput
+                  mode="outlined"
+                  value={state.confirmPassword}
+                  onChangeText={(v) => {
+                    dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: v });
+                    dispatch({
+                      type: 'VALIDATE_FIELD',
+                      field: 'confirmPasswordValid',
+                      value: v === state.password,
+                    });
+                  }}
+                  placeholder="Confirm Password"
+                  secureTextEntry={!state.showConfirmPassword}
+                  left={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons name="lock-closed-outline" size={20} color="#666666" />
+                      )}
+                    />
+                  }
+                  right={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Ionicons
+                          name={state.showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                          size={20}
+                          color="#666666"
+                        />
+                      )}
+                      onPress={() => dispatch({ type: 'TOGGLE', field: 'showConfirmPassword' })}
+                    />
+                  }
+                  style={styles.input}
+                  outlineColor="#E0E0E0"
+                  activeOutlineColor="#2979FF"
+                  outlineStyle={{ borderRadius: 12 }}
+                  theme={{
+                    colors: {
+                      background: '#FFFFFF',
+                    },
+                  }}
+                  blurOnSubmit={true}
+                  returnKeyType="done"
+                  onSubmitEditing={() => Keyboard.dismiss()} // Dismiss keyboard when pressing return
+                />
+                {state.confirmPassword.length > 0 && !state.confirmPasswordValid && (
+                  <Text style={styles.errorText}>
+                    Passwords do not match.
+                  </Text>
+                )}
+              </View>
+
+              {/* Terms & Conditions */}
+              <View style={styles.termsContainer}>
+                <View style={styles.checkboxContainer}>
+                  <Checkbox
+                    status={state.agreeToTerms ? 'checked' : 'unchecked'}
+                    onPress={() => {
+                      Keyboard.dismiss(); // Dismiss keyboard when checkbox is pressed
+                      dispatch({ type: 'TOGGLE', field: 'agreeToTerms' });
+                    }}
+                    color="#2979FF"
+                  />
+                  <Text style={styles.termsText}>
+                    By signing up, you are agree to our{' '}
+                    <Text style={styles.termsLink}>Terms & Conditions</Text>
+                    {' '}and{' '}
+                    <Text style={styles.termsLink}>Privacy Policy</Text>
+                  </Text>
                 </View>
               </View>
-            )}
 
-            {/* Password Input */}
-            <View style={styles.inputContainer}>
-              <TextInput
-                mode="outlined"
-                value={state.password}
-                onChangeText={(v) => dispatch({ type: 'SET_FIELD', field: 'password', value: v })}
-                placeholder="Password"
-                secureTextEntry={!state.showPassword}
-                left={
-                  <TextInput.Icon
-                    icon={() => (
-                      <Ionicons
-                        name="lock-closed-outline"
-                        size={20}
-                        color="#666666"
-                      />
-                    )}
-                  />
-                }
-                right={
-                  <TextInput.Icon
-                    icon={() => (
-                      <Ionicons
-                        name={state.showPassword ? 'eye-off-outline' : 'eye-outline'}
-                        size={20}
-                        color="#666666"
-                      />
-                    )}
-                    onPress={() => dispatch({ type: 'TOGGLE', field: 'showPassword' })}
-                  />
-                }
-                style={styles.input}
-                outlineColor="#E0E0E0"
-                activeOutlineColor="#2979FF"
-                outlineStyle={{ borderRadius: 12 }}
-                theme={{
-                  colors: {
-                    background: '#FFFFFF',
-                  },
-                }}
-              />
-            </View>
+              {/* Create Account Button */}
+              <Button
+                mode="contained"
+                onPress={handleCreateAccount}
+                style={styles.createAccountButton}
+                contentStyle={styles.buttonContent}
+                labelStyle={styles.buttonText}
+                buttonColor="#2979FF"
+              >
+                Create Account
+              </Button>
 
-            {/* Terms & Conditions */}
-            <View style={styles.termsContainer}>
-              <View style={styles.checkboxContainer}>
-                <Checkbox
-                  status={state.agreeToTerms ? 'checked' : 'unchecked'}
-                  onPress={() => dispatch({ type: 'TOGGLE', field: 'agreeToTerms' })}
-                  color="#2979FF"
-                />
-                <Text style={styles.termsText}>
-                  By signing up, you are agree to our{' '}
-                  <Text style={styles.termsLink}>Terms & Conditions</Text>
-                  {' '}and{' '}
-                  <Text style={styles.termsLink}>Privacy Policy</Text>
-                </Text>
+              {/* Divider */}
+              <View style={styles.dividerContainer}>
+                <Divider style={styles.divider} />
+                <Text style={styles.dividerText}>Or Continue with</Text>
+                <Divider style={styles.divider} />
+              </View>
+
+              {/* Social Login Buttons */}
+              <View style={styles.socialContainer}>
+                <TouchableOpacity
+                  style={styles.socialButton}
+                  onPress={() => handleSocialSignup('Google')}
+                >
+                  <Ionicons name="logo-google" size={32} color="#000000" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.socialButton}
+                  onPress={() => handleSocialSignup('Apple')}
+                >
+                  <Ionicons name="logo-apple" size={32} color="#000000" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Login Link */}
+              <View style={styles.loginContainer}>
+                <Text style={styles.loginText}>Already have an Account? </Text>
+                <TouchableOpacity onPress={navigateToLogin}>
+                  <Text style={styles.loginLink}>Log in</Text>
+                </TouchableOpacity>
               </View>
             </View>
-
-            {/* Create Account Button */}
-            <Button
-              mode="contained"
-              onPress={handleCreateAccount}
-              style={styles.createAccountButton}
-              contentStyle={styles.buttonContent}
-              labelStyle={styles.buttonText}
-              buttonColor="#2979FF"
-            >
-              Create Account
-            </Button>
-
-            {/* Divider */}
-            <View style={styles.dividerContainer}>
-              <Divider style={styles.divider} />
-              <Text style={styles.dividerText}>Or Continue with</Text>
-              <Divider style={styles.divider} />
-            </View>
-
-            {/* Social Login Buttons */}
-            <View style={styles.socialContainer}>
-              <TouchableOpacity
-                style={styles.socialButton}
-                onPress={() => handleSocialSignup('Google')}
-              >
-                <Ionicons name="logo-google" size={32} color="#000000" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.socialButton}
-                onPress={() => handleSocialSignup('Apple')}
-              >
-                <Ionicons name="logo-apple" size={32} color="#000000" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Login Link */}
-            <View style={styles.loginContainer}>
-              <Text style={styles.loginText}>Already have an Account? </Text>
-              <TouchableOpacity onPress={navigateToLogin}>
-                <Text style={styles.loginLink}>Log in</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
@@ -398,6 +459,9 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   scrollView: {
+    flex: 1,
+  },
+  touchableContainer: {
     flex: 1,
   },
   illustrationContainer: {
@@ -436,6 +500,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderRadius: 12,
   },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
+  },
   termsContainer: {
     marginBottom: 24,
   },
@@ -471,40 +541,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  emailRow: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-  },
-  sendOtpButton: {
-    borderRadius: 12,
-    justifyContent: 'center',
-    height: 50, // Match typical input height
-    marginTop: 6, // Align with input
-  },
-  sendOtpButtonContent: {
-    height: 50,
-  },
-  sendOtpButtonLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  otpButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: 10,
-    gap: 12,
-  },
-  otpButton: {
-    borderRadius: 12,
-  },
-  otpVerifiedText: {
-    color: '#10B981',
-    fontWeight: '700',
-    fontSize: 14,
-  },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -530,11 +566,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 50,
     backgroundColor: '#F5F5F5',
-  },
-  socialButtonText: {
-    fontSize: 14,
-    color: '#192031',
-    fontWeight: '500',
   },
   loginContainer: {
     flexDirection: 'row',

@@ -3,8 +3,6 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   TouchableOpacity,
   Alert,
   Image,
@@ -49,16 +47,28 @@ const LoginPage = ({ navigation }) => {
 
     try {
       const usersJson = await AsyncStorage.getItem('users');
+      console.log('Users from storage:', usersJson); // Debug log
+      
       const users = usersJson ? JSON.parse(usersJson) : [];
-      const user = users.find(u => u.email === email.trim());
+      console.log('Parsed users:', users); // Debug log
+      
+      // Trim and lowercase both for comparison to handle case sensitivity
+      const user = users.find(u => 
+        u.email.trim().toLowerCase() === email.trim().toLowerCase()
+      );
+      
+      console.log('Found user:', user); // Debug log
+      
       if (!user) {
         Alert.alert('Error', 'User not found. Please create an account.');
         return;
       }
+      
       if (user.password !== password) {
         Alert.alert('Error', 'Invalid password');
         return;
       }
+      
       const userData = {
         name: user.fullName || user.name || email.split('@')[0],
         email: user.email,
@@ -66,8 +76,16 @@ const LoginPage = ({ navigation }) => {
 
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       await AsyncStorage.setItem('rememberMe', 'true');
-      await AsyncStorage.setItem('savedEmail', email);
-      navigation.navigate('MainApp');
+      await AsyncStorage.setItem('savedEmail', email.trim());
+      
+      Alert.alert('Success', 'Login successful!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate('MainApp');
+          },
+        },
+      ]);
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Error', 'Failed to login. Please try again.');
@@ -75,20 +93,16 @@ const LoginPage = ({ navigation }) => {
   };
 
   const handleSocialLogin = (provider) => {
-    console.log(`${provider} login pressed`);
+    Alert.alert('Info', `${provider} login would be implemented here`);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <View style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          {/* Illustration */}
           <View style={styles.illustrationContainer}>
             <Image
               source={require('../photos/Mobile-rafiki.png')}
@@ -103,19 +117,19 @@ const LoginPage = ({ navigation }) => {
           </View>
 
           <View style={styles.form}>
-            {/* User Name Input */}
+            {/* Email Input */}
             <View style={styles.inputContainer}>
               <TextInput
                 mode="outlined"
                 value={email}
                 onChangeText={setEmail}
-                placeholder="User name"
+                placeholder="Email address"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 left={
                   <TextInput.Icon
                     icon={() => (
-                      <Ionicons name="person-outline" size={20} color="#666666" />
+                      <Ionicons name="mail-outline" size={20} color="#666666" />
                     )}
                   />
                 }
@@ -227,7 +241,7 @@ const LoginPage = ({ navigation }) => {
           </View>
         </ScrollView>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -241,7 +255,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 40 : 20,
+    paddingTop: 40,
     paddingBottom: 20,
   },
   illustrationContainer: {
@@ -331,11 +345,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 50,
     backgroundColor: '#F5F5F5',
-  },
-  socialButtonText: {
-    fontSize: 14,
-    color: '#192031',
-    fontWeight: '500',
   },
   signupContainer: {
     flexDirection: 'row',

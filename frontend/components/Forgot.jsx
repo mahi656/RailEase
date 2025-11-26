@@ -8,7 +8,6 @@ const Forgot = ({ navigation }) => {
 
   const handleReset = () => {
     console.log('Password reset requested for', email);
-    // Add your OTP sending logic here
   };
 
   return (
