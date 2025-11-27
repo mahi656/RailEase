@@ -8,31 +8,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Booking {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  eventId   Int
-  seats     Int
-  createdAt DateTime? @default(now()) @db.DateTime(0)
-  User      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_1")
-  Event     Event     @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_2")
-
-  @@index([eventId], map: "eventId")
-  @@index([userId], map: "userId")
-}
-
-model Event {
-  id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  location   String    @db.VarChar(255)
-  date       DateTime  @db.DateTime(0)
-  totalSeats Int
-  Booking    Booking[]
-}
-
 model User {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(255)
-  email   String    @unique(map: "email") @db.VarChar(255)
-  Booking Booking[]
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(255)
+  email    String @unique(map: "email") @db.VarChar(255)
+  password String @unique(map: "password") @db.VarChar(255)
 }
