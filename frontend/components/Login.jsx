@@ -20,23 +20,21 @@ const LoginPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [lastUser, setLastUser] = useState(null);
 
-  // Load saved email if remember me was checked
+  // Load saved email and last user details
   useEffect(() => {
-    const loadSavedEmail = async () => {
+    const loadData = async () => {
       try {
-        const savedRememberMe = await AsyncStorage.getItem('rememberMe');
-        if (savedRememberMe === 'true') {
-          const savedEmail = await AsyncStorage.getItem('savedEmail');
-          if (savedEmail) {
-            setEmail(savedEmail);
-          }
+        const lastUserJson = await AsyncStorage.getItem('lastUser');
+        if (lastUserJson) {
+          setLastUser(JSON.parse(lastUserJson));
         }
       } catch (error) {
-        console.error('Error loading saved email:', error);
+        console.error('Error loading saved data:', error);
       }
     };
-    loadSavedEmail();
+    loadData();
   }, []);
 
   const handleLogin = async () => {
@@ -48,36 +46,44 @@ const LoginPage = ({ navigation }) => {
     try {
       const usersJson = await AsyncStorage.getItem('users');
       console.log('Users from storage:', usersJson); // Debug log
-      
+
       const users = usersJson ? JSON.parse(usersJson) : [];
       console.log('Parsed users:', users); // Debug log
-      
+
       // Trim and lowercase both for comparison to handle case sensitivity
-      const user = users.find(u => 
+      const user = users.find(u =>
         u.email.trim().toLowerCase() === email.trim().toLowerCase()
       );
-      
+
       console.log('Found user:', user); // Debug log
-      
+
       if (!user) {
         Alert.alert('Error', 'User not found. Please create an account.');
         return;
       }
-      
+
       if (user.password !== password) {
         Alert.alert('Error', 'Invalid password');
         return;
       }
-      
+
       const userData = {
         name: user.fullName || user.name || email.split('@')[0],
         email: user.email,
       };
 
+      // Save successful login details for "Continue as" feature
+      const lastUserData = {
+        name: userData.name,
+        email: user.email,
+        password: user.password, // Storing password for auto-login (consider security implications in prod)
+      };
+      await AsyncStorage.setItem('lastUser', JSON.stringify(lastUserData));
+
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       await AsyncStorage.setItem('rememberMe', 'true');
       await AsyncStorage.setItem('savedEmail', email.trim());
-      
+
       Alert.alert('Success', 'Login successful!', [
         {
           text: 'OK',
@@ -89,6 +95,47 @@ const LoginPage = ({ navigation }) => {
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Error', 'Failed to login. Please try again.');
+    }
+  };
+
+  const handleContinueAsUser = () => {
+    if (lastUser) {
+      setEmail(lastUser.email);
+      setPassword(lastUser.password);
+      // Automatically trigger login after state update
+      // We need to use the values directly since state update is async
+      // But handleLogin uses state 'email' and 'password'
+      // So we'll call a modified login logic or wait for state update
+      // For simplicity, we can just set state and let user click login, 
+      // OR better: call login logic directly with values
+
+      // Direct login logic for immediate action
+      const performAutoLogin = async () => {
+        try {
+          const usersJson = await AsyncStorage.getItem('users');
+          const users = usersJson ? JSON.parse(usersJson) : [];
+          const user = users.find(u =>
+            u.email.trim().toLowerCase() === lastUser.email.trim().toLowerCase()
+          );
+
+          if (user && user.password === lastUser.password) {
+            const userData = {
+              name: user.fullName || user.name || lastUser.email.split('@')[0],
+              email: user.email,
+            };
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            await AsyncStorage.setItem('rememberMe', 'true');
+            await AsyncStorage.setItem('savedEmail', lastUser.email);
+
+            navigation.navigate('MainApp');
+          } else {
+            Alert.alert('Error', 'Auto-login failed. Please login manually.');
+          }
+        } catch (e) {
+          Alert.alert('Error', 'Auto-login failed.');
+        }
+      };
+      performAutoLogin();
     }
   };
 
@@ -114,6 +161,13 @@ const LoginPage = ({ navigation }) => {
           <View style={styles.header}>
             <Text style={styles.title}>Log In</Text>
             <Text style={styles.subtitle}>Enter valid user name & password to continue</Text>
+
+            {lastUser && (
+              <TouchableOpacity style={styles.continueButton} onPress={handleContinueAsUser}>
+                <Ionicons name="flash" size={16} color="#2979FF" style={{ marginRight: 8 }} />
+                <Text style={styles.continueButtonText}>Continue as {lastUser.name}</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={styles.form}>
@@ -359,6 +413,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2979FF',
     fontWeight: '600',
+  },
+  continueButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#BBDEFB',
+  },
+  continueButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2979FF',
   },
 });
 

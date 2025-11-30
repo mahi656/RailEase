@@ -7,13 +7,14 @@ import CreateAccount from './components/CreateAccount';
 import Forgot from './components/Forgot';
 import SplashScreen from './components/SplashScreen';
 import MainTabNavigator from './components/MainTabNavigator';
+import BookInformation from './components/screens/BookInformation';
 
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -32,6 +33,7 @@ export default function App() {
         <Stack.Screen name="CreateAccount" component={CreateAccount} />
         <Stack.Screen name="Forgot" component={Forgot} />
         <Stack.Screen name="MainApp" component={MainTabNavigator} />
+        <Stack.Screen name="BookInformation" component={BookInformation} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

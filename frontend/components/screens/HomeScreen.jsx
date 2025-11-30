@@ -33,10 +33,10 @@ const HomeScreen = () => {
     },
     {
       id: 2,
-      title: 'PNR Status',
-      icon: 'document-text-outline',
+      title: 'Station Info',
+      icon: 'business-outline',
       color: '#50C878',
-      description: 'Check your booking status'
+      description: 'Explore stations & facilities'
     },
     {
       id: 3,
@@ -47,10 +47,10 @@ const HomeScreen = () => {
     },
     {
       id: 4,
-      title: 'Train Schedule',
-      icon: 'time-outline',
+      title: 'Offers',
+      icon: 'pricetag-outline',
       color: '#FFA500',
-      description: 'Check train timings'
+      description: 'Check latest deals'
     }
   ];
 

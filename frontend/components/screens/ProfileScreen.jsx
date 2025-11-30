@@ -36,6 +36,7 @@ const ProfileScreen = () => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem('lastUser');
       setIsLoggedIn(false);
       setUserName('');
       setUserEmail('');

@@ -530,34 +530,6 @@ const dummyData = {
         }
     ],
 
-    "users": [
-        {
-            "id": "US001",
-            "name": "Rahul Sharma",
-            "email": "rahul.sharma@email.com",
-            "phone": "+919876543210",
-            "dateOfBirth": "1995-08-15",
-            "gender": "Male",
-            "idProof": {
-                "type": "Aadhar",
-                "number": "1234-5678-9012"
-            },
-            "bookings": ["BK001"]
-        },
-        {
-            "id": "US002",
-            "name": "Priya Patel",
-            "email": "priya.patel@email.com",
-            "phone": "+919876543211",
-            "dateOfBirth": "1998-03-22",
-            "gender": "Female",
-            "idProof": {
-                "type": "PAN",
-                "number": "ABCDE1234F"
-            },
-            "bookings": ["BK002"]
-        }
-    ],
 
     "seatAvailability": [
         {

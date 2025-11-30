@@ -1,6 +1,6 @@
 import React, { useReducer } from 'react';
-import {View,StyleSheet,ScrollView,Platform,Alert,TouchableOpacity,Image,KeyboardAvoidingView,Keyboard,} from 'react-native';
-import {TextInput,Button,Text,Checkbox,Divider,} from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Platform, Alert, TouchableOpacity, Image, } from 'react-native';
+import { TextInput, Button, Text, Checkbox, Divider, } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -46,8 +46,7 @@ const CreateAccount = ({ navigation }) => {
   const handleCreateAccount = async () => {
     const { fullName, email, password, confirmPassword, agreeToTerms } = state;
 
-    // Dismiss keyboard first
-    Keyboard.dismiss();
+
 
     // Validation
     if (!fullName.trim()) {
@@ -134,39 +133,25 @@ const CreateAccount = ({ navigation }) => {
   };
 
   const handleSocialSignup = (provider) => {
-    Keyboard.dismiss(); // Dismiss keyboard when social signup is pressed
     Alert.alert('Info', `${provider} signup would be implemented here`);
   };
 
   const navigateToLogin = () => {
-    Keyboard.dismiss(); // Dismiss keyboard when navigating to login
     navigation.navigate('Login');
   };
 
-  // Add touch handlers to dismiss keyboard when tapping outside inputs
-  const handleScrollViewPress = () => {
-    Keyboard.dismiss();
-  };
+
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <View style={[styles.gradient, { backgroundColor: '#F3F6FF' }]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContainer}
           contentInsetAdjustmentBehavior="always"
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled" // This allows taps to dismiss keyboard
         >
-          {/* Touchable wrapper to dismiss keyboard when tapping outside */}
-          <TouchableOpacity 
-            style={styles.touchableContainer}
-            activeOpacity={1} 
-            onPress={handleScrollViewPress}
-          >
+          <View style={styles.touchableContainer}>
             {/* Illustration */}
             <View style={styles.illustrationContainer}>
               <Image
@@ -207,6 +192,8 @@ const CreateAccount = ({ navigation }) => {
                   }}
                   blurOnSubmit={false}
                   returnKeyType="next"
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
               </View>
 
@@ -244,6 +231,8 @@ const CreateAccount = ({ navigation }) => {
                   }}
                   blurOnSubmit={false}
                   returnKeyType="next"
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
                 {state.email.length > 0 && !state.emailValid && (
                   <Text style={styles.errorText}>
@@ -297,6 +286,8 @@ const CreateAccount = ({ navigation }) => {
                   }}
                   blurOnSubmit={false}
                   returnKeyType="next"
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
                 {!state.passwordValid && state.password.length > 0 && (
                   <Text style={styles.errorText}>
@@ -350,7 +341,8 @@ const CreateAccount = ({ navigation }) => {
                   }}
                   blurOnSubmit={true}
                   returnKeyType="done"
-                  onSubmitEditing={() => Keyboard.dismiss()} // Dismiss keyboard when pressing return
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
                 {state.confirmPassword.length > 0 && !state.confirmPasswordValid && (
                   <Text style={styles.errorText}>
@@ -365,7 +357,6 @@ const CreateAccount = ({ navigation }) => {
                   <Checkbox
                     status={state.agreeToTerms ? 'checked' : 'unchecked'}
                     onPress={() => {
-                      Keyboard.dismiss(); // Dismiss keyboard when checkbox is pressed
                       dispatch({ type: 'TOGGLE', field: 'agreeToTerms' });
                     }}
                     color="#2979FF"
@@ -422,10 +413,10 @@ const CreateAccount = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
-          </TouchableOpacity>
+          </View>
         </ScrollView>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
