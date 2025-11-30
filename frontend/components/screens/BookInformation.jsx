@@ -19,12 +19,19 @@ const PRIMARY_BLUE_LIGHT = '#E3F2FD';
 const BookInformation = ({ route, navigation }) => {
     const { train, fromCode, toCode, fromName, toName } = route.params || {};
 
+    const [selectedClass, setSelectedClass] = useState(train?.classes?.[0] || null);
+    const [numberOfSeats, setNumberOfSeats] = useState(1);
     const [passengerName, setPassengerName] = useState('');
     const [passengerAge, setPassengerAge] = useState('');
     const [passengerGender, setPassengerGender] = useState('Male');
     const [contactNumber, setContactNumber] = useState('');
 
     const saveBooking = async () => {
+        if (!selectedClass) {
+            Alert.alert('Selection Required', 'Please select a class');
+            return;
+        }
+
         if (!passengerName || !passengerAge) {
             Alert.alert('Missing Details', 'Please enter passenger name and age');
             return;
@@ -55,7 +62,10 @@ const BookInformation = ({ route, navigation }) => {
                 passengerGender,
                 contactNumber,
                 date: new Date().toISOString().split('T')[0],
-                price: train.classes[0]?.fare || 0,
+                price: selectedClass.fare * numberOfSeats,
+                numberOfSeats: numberOfSeats,
+                class: selectedClass.class,
+                className: selectedClass.name,
                 bookedAt: new Date().toISOString(),
                 pnr: `PNR${Math.floor(1000000000 + Math.random() * 9000000000)}`,
             };
@@ -65,7 +75,7 @@ const BookInformation = ({ route, navigation }) => {
             Alert.alert('Success', 'Ticket booked successfully!', [
                 {
                     text: 'OK',
-                    onPress: () => navigation.navigate('MainApp', { screen: 'Saved Ticket' }), // Navigate to Saved Tickets or Home
+                    onPress: () => navigation.navigate('MainApp', { screen: 'Saved Ticket' }),
                 },
             ]);
         } catch (error) {
@@ -94,6 +104,71 @@ const BookInformation = ({ route, navigation }) => {
                         </Text>
                     </View>
                 )}
+
+                {/* Class Selection */}
+                {train?.classes && (
+                    <View style={styles.classSelectionContainer}>
+                        <Text style={styles.sectionTitle}>Select Class</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.classesList}>
+                            {train.classes.map((item, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[
+                                        styles.classCard,
+                                        selectedClass?.class === item.class && styles.classCardActive
+                                    ]}
+                                    onPress={() => setSelectedClass(item)}
+                                >
+                                    <View style={styles.classHeader}>
+                                        <Text style={[
+                                            styles.className,
+                                            selectedClass?.class === item.class && styles.classNameActive
+                                        ]}>{item.class}</Text>
+                                        <Text style={[
+                                            styles.classPrice,
+                                            selectedClass?.class === item.class && styles.classPriceActive
+                                        ]}>₹{item.fare}</Text>
+                                    </View>
+                                    <View style={styles.seatInfo}>
+                                        <Text style={[
+                                            styles.classAvailability,
+                                            selectedClass?.class === item.class && styles.classAvailabilityActive
+                                        ]}>AVL: {item.available}</Text>
+                                        <Text style={[
+                                            styles.classTotalSeats,
+                                            selectedClass?.class === item.class && styles.classAvailabilityActive
+                                        ]}>/{item.totalSeats}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                )}
+
+                {/* Seat Quantity Selection */}
+                <View style={styles.seatQuantityContainer}>
+                    <Text style={styles.sectionTitle}>Number of Seats</Text>
+                    <View style={styles.quantitySelector}>
+                        <TouchableOpacity
+                            style={[styles.quantityButton, numberOfSeats <= 1 && styles.quantityButtonDisabled]}
+                            onPress={() => setNumberOfSeats(Math.max(1, numberOfSeats - 1))}
+                            disabled={numberOfSeats <= 1}
+                        >
+                            <Ionicons name="remove" size={20} color={numberOfSeats <= 1 ? '#ccc' : PRIMARY_BLUE} />
+                        </TouchableOpacity>
+                        <Text style={styles.quantityText}>{numberOfSeats}</Text>
+                        <TouchableOpacity
+                            style={[styles.quantityButton, numberOfSeats >= (selectedClass?.available || 6) && styles.quantityButtonDisabled]}
+                            onPress={() => setNumberOfSeats(Math.min(selectedClass?.available || 6, numberOfSeats + 1))}
+                            disabled={numberOfSeats >= (selectedClass?.available || 6)}
+                        >
+                            <Ionicons name="add" size={20} color={numberOfSeats >= (selectedClass?.available || 6) ? '#ccc' : PRIMARY_BLUE} />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.seatQuantityHint}>
+                        {selectedClass ? `${selectedClass.available} seats available in ${selectedClass.class}` : 'Select a class first'}
+                    </Text>
+                </View>
 
                 <View style={styles.formCard}>
                     <View style={styles.inputGroup}>
@@ -156,6 +231,10 @@ const BookInformation = ({ route, navigation }) => {
             </ScrollView>
 
             <View style={styles.footer}>
+                <View style={styles.priceContainer}>
+                    <Text style={styles.totalLabel}>Total Fare ({numberOfSeats} seat{numberOfSeats > 1 ? 's' : ''})</Text>
+                    <Text style={styles.totalPrice}>₹{(selectedClass?.fare || 0) * numberOfSeats}</Text>
+                </View>
                 <TouchableOpacity style={styles.confirmButton} onPress={saveBooking}>
                     <Text style={styles.confirmButtonText}>Confirm Booking</Text>
                 </TouchableOpacity>
@@ -205,6 +284,105 @@ const styles = StyleSheet.create({
     trainInfoSubtext: {
         fontSize: 14,
         color: '#666',
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 12,
+        marginLeft: 4,
+    },
+    classSelectionContainer: {
+        marginBottom: 24,
+    },
+    classesList: {
+        flexDirection: 'row',
+    },
+    classCard: {
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 12,
+        marginRight: 12,
+        width: 120,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    classCardActive: {
+        backgroundColor: PRIMARY_BLUE,
+        borderColor: PRIMARY_BLUE,
+    },
+    classHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    className: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#333',
+    },
+    classNameActive: {
+        color: '#fff',
+    },
+    classPrice: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: PRIMARY_BLUE,
+    },
+    classPriceActive: {
+        color: '#fff',
+    },
+    classAvailability: {
+        fontSize: 12,
+        color: '#666',
+    },
+    classAvailabilityActive: {
+        color: 'rgba(255,255,255,0.9)',
+    },
+    seatInfo: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+    },
+    classTotalSeats: {
+        fontSize: 10,
+        color: '#999',
+    },
+    seatQuantityContainer: {
+        marginBottom: 24,
+    },
+    quantitySelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 16,
+        gap: 24,
+    },
+    quantityButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: PRIMARY_BLUE_LIGHT,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    quantityButtonDisabled: {
+        backgroundColor: '#f0f0f0',
+    },
+    quantityText: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#333',
+        minWidth: 40,
+        textAlign: 'center',
+    },
+    seatQuantityHint: {
+        fontSize: 12,
+        color: '#666',
+        textAlign: 'center',
+        marginTop: 8
     },
     formCard: {
         backgroundColor: '#fff',
@@ -265,11 +443,28 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderTopWidth: 1,
         borderTopColor: '#eee',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    priceContainer: {
+        flex: 1,
+    },
+    totalLabel: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 2,
+    },
+    totalPrice: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#333',
     },
     confirmButton: {
         backgroundColor: PRIMARY_BLUE,
         borderRadius: 12,
-        paddingVertical: 16,
+        paddingVertical: 14,
+        paddingHorizontal: 24,
         alignItems: 'center',
         shadowColor: PRIMARY_BLUE,
         shadowOpacity: 0.3,

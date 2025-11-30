@@ -130,25 +130,32 @@ const dummyData = {
             "runningDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "classes": [
                 {
+                    "class": "SL",
+                    "name": "Sleeper",
+                    "available": 2,
+                    "fare": 950,
+                    "totalSeats": 24
+                },
+                {
                     "class": "1A",
                     "name": "First AC",
-                    "available": 24,
+                    "available": 5,
                     "fare": 4850,
                     "totalSeats": 24
                 },
                 {
                     "class": "2A",
                     "name": "Second AC",
-                    "available": 48,
+                    "available": 4,
                     "fare": 2850,
-                    "totalSeats": 48
+                    "totalSeats": 23
                 },
                 {
                     "class": "3A",
                     "name": "Third AC",
-                    "available": 72,
+                    "available": 7,
                     "fare": 1950,
-                    "totalSeats": 72
+                    "totalSeats": 40
                 }
             ],
             "route": [
@@ -189,23 +196,30 @@ const dummyData = {
             "runningDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "classes": [
                 {
+                    "class": "SL",
+                    "name": "Sleeper",
+                    "available": 2,
+                    "fare": 850,
+                    "totalSeats": 24
+                },
+                {
                     "class": "1A",
                     "name": "First AC",
-                    "available": 18,
+                    "available": 1,
                     "fare": 4250,
                     "totalSeats": 18
                 },
                 {
                     "class": "2A",
                     "name": "Second AC",
-                    "available": 42,
+                    "available": 4,
                     "fare": 2450,
                     "totalSeats": 42
                 },
                 {
                     "class": "3A",
                     "name": "Third AC",
-                    "available": 64,
+                    "available": 6,
                     "fare": 1750,
                     "totalSeats": 64
                 }
@@ -248,33 +262,33 @@ const dummyData = {
             "runningDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "classes": [
                 {
+                    "class": "SL",
+                    "name": "Sleeper",
+                    "available": 4,
+                    "fare": 910,
+                    "totalSeats": 24
+                }, ,
+                {
                     "class": "1A",
                     "name": "First AC",
-                    "available": 16,
+                    "available": 5,
                     "fare": 3850,
                     "totalSeats": 16
                 },
                 {
                     "class": "2A",
                     "name": "Second AC",
-                    "available": 36,
+                    "available": 3,
                     "fare": 2250,
                     "totalSeats": 36
                 },
                 {
                     "class": "3A",
                     "name": "Third AC",
-                    "available": 54,
+                    "available": 5,
                     "fare": 1550,
                     "totalSeats": 54
                 },
-                {
-                    "class": "SL",
-                    "name": "Sleeper",
-                    "available": 120,
-                    "fare": 650,
-                    "totalSeats": 120
-                }
             ],
             "route": [
                 {
@@ -314,6 +328,13 @@ const dummyData = {
             "duration": "1h 15m",
             "runningDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "classes": [
+                {
+                    "class": "SL",
+                    "name": "Sleeper",
+                    "available": 2,
+                    "fare": 750,
+                    "totalSeats": 24
+                },
                 {
                     "class": "SL",
                     "name": "Second Class",

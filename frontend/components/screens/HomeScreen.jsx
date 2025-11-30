@@ -47,10 +47,10 @@ const HomeScreen = () => {
     },
     {
       id: 4,
-      title: 'Offers',
-      icon: 'pricetag-outline',
+      title: 'Saved Tickets',
+      icon: 'ticket-outline',
       color: '#FFA500',
-      description: 'Check latest deals'
+      description: 'View your saved tickets'
     }
   ];
 
