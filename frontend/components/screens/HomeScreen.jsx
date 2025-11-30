@@ -33,10 +33,10 @@ const HomeScreen = () => {
     },
     {
       id: 2,
-      title: 'Station Info',
-      icon: 'business-outline',
+      title: 'My Profile',
+      icon: 'person-outline',
       color: '#50C878',
-      description: 'Explore stations & facilities'
+      description: 'View and edit your profile'
     },
     {
       id: 3,
