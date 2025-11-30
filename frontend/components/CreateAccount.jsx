@@ -118,11 +118,11 @@ const CreateAccount = ({ navigation }) => {
       };
       await AsyncStorage.setItem('user', JSON.stringify(userData));
 
-      Alert.alert('Success', 'Account created successfully!', [
+      Alert.alert('Success', 'Account created successfully! Please log in.', [
         {
           text: 'OK',
           onPress: () => {
-            navigation.navigate('MainApp');
+            navigation.navigate('Login');
           },
         },
       ]);

@@ -145,7 +145,7 @@ const ProfileScreen = () => {
 
             <Divider style={styles.itemDivider} />
 
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Forgot')}>
               <View style={styles.menuItemLeft}>
                 <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                   <Ionicons name="lock-closed-outline" size={20} color="#FF9800" />
