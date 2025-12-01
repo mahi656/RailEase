@@ -256,6 +256,9 @@ const CreateAccount = ({ navigation }) => {
                   }}
                   placeholder="Password"
                   secureTextEntry={!state.showPassword}
+                  autoComplete="off"
+                  textContentType="none"
+                  importantForAutofill="no"
                   left={
                     <TextInput.Icon
                       icon={() => (
@@ -311,6 +314,9 @@ const CreateAccount = ({ navigation }) => {
                   }}
                   placeholder="Confirm Password"
                   secureTextEntry={!state.showConfirmPassword}
+                  autoComplete="off"
+                  textContentType="none"
+                  importantForAutofill="no"
                   left={
                     <TextInput.Icon
                       icon={() => (

@@ -13,9 +13,15 @@ const SavedTicket = () => {
 
     const loadTickets = async () => {
         try {
+            const userJson = await AsyncStorage.getItem('user');
+            const user = userJson ? JSON.parse(userJson) : null;
+            const userEmail = user ? user.email : '';
+
             const savedTickets = await AsyncStorage.getItem('bookedTickets');
             if (savedTickets) {
-                setTickets(JSON.parse(savedTickets));
+                const allTickets = JSON.parse(savedTickets);
+                const userTickets = allTickets.filter(ticket => ticket.userEmail === userEmail);
+                setTickets(userTickets);
             }
         } catch (error) {
             console.error('Error loading tickets:', error);
@@ -44,9 +50,12 @@ const SavedTicket = () => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            const updatedTickets = tickets.filter(ticket => ticket.id !== ticketId);
-                            await AsyncStorage.setItem('bookedTickets', JSON.stringify(updatedTickets));
-                            setTickets(updatedTickets);
+                            const savedTickets = await AsyncStorage.getItem('bookedTickets');
+                            const allTickets = savedTickets ? JSON.parse(savedTickets) : [];
+                            const updatedAllTickets = allTickets.filter(ticket => ticket.id !== ticketId);
+
+                            await AsyncStorage.setItem('bookedTickets', JSON.stringify(updatedAllTickets));
+                            loadTickets(); // Reload to update local state
                         } catch (error) {
                             console.error('Error deleting ticket:', error);
                             Alert.alert('Error', 'Could not delete ticket');
@@ -71,13 +80,17 @@ const SavedTicket = () => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            const updatedTickets = tickets.map(ticket =>
+                            const savedTickets = await AsyncStorage.getItem('bookedTickets');
+                            const allTickets = savedTickets ? JSON.parse(savedTickets) : [];
+
+                            const updatedAllTickets = allTickets.map(ticket =>
                                 ticket.id === ticketId
                                     ? { ...ticket, status: 'Cancelled', cancelledAt: new Date().toISOString() }
                                     : ticket
                             );
-                            await AsyncStorage.setItem('bookedTickets', JSON.stringify(updatedTickets));
-                            setTickets(updatedTickets);
+
+                            await AsyncStorage.setItem('bookedTickets', JSON.stringify(updatedAllTickets));
+                            loadTickets(); // Reload to update local state
                             Alert.alert('Success', 'Ticket cancelled successfully');
                         } catch (error) {
                             console.error('Error cancelling ticket:', error);

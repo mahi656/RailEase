@@ -63,6 +63,10 @@ const BookInformation = ({ route, navigation }) => {
         }
 
         try {
+            const userJson = await AsyncStorage.getItem('user');
+            const user = userJson ? JSON.parse(userJson) : null;
+            const userEmail = user ? user.email : '';
+
             const existing = await AsyncStorage.getItem('bookedTickets');
             const tickets = existing ? JSON.parse(existing) : [];
 
@@ -86,6 +90,7 @@ const BookInformation = ({ route, navigation }) => {
                 class: selectedClass.class,
                 className: selectedClass.name,
                 bookedAt: new Date().toISOString(),
+                userEmail: userEmail,
                 pnr: `PNR${Math.floor(1000000000 + Math.random() * 9000000000)}`,
             };
 
