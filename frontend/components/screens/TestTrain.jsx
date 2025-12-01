@@ -1,54 +1,109 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  FlatList,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import React, { useReducer } from 'react';
+import { View, Text, TouchableOpacity, TextInput, FlatList, SafeAreaView, StatusBar, ScrollView, } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import dummyData from '../dummydata';
+import styles from '../../CSS/TestTrain';
 
 const PRIMARY_BLUE = '#2979FF';
-const PRIMARY_BLUE_LIGHT = '#E3F2FD';
+
+const initialState = {
+  fromInput: '',
+  toInput: '',
+  fromCode: '',
+  toCode: '',
+  fromSuggestions: [],
+  toSuggestions: [],
+  showFromSuggestions: false,
+  showToSuggestions: false,
+  trains: [],
+  error: '',
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'SET_SUGGESTIONS':
+      return {
+        ...state,
+        [action.field === 'from' ? 'fromSuggestions' : 'toSuggestions']: action.value,
+        [action.field === 'from' ? 'showFromSuggestions' : 'showToSuggestions']: action.show,
+      };
+    case 'SELECT_STATION':
+      if (action.field === 'from') {
+        return {
+          ...state,
+          fromInput: `${action.station.name} (${action.station.code})`,
+          fromCode: action.station.code,
+          showFromSuggestions: false,
+          fromSuggestions: [],
+        };
+      } else {
+        return {
+          ...state,
+          toInput: `${action.station.name} (${action.station.code})`,
+          toCode: action.station.code,
+          showToSuggestions: false,
+          toSuggestions: [],
+        };
+      }
+    case 'SWAP_STATIONS':
+      return {
+        ...state,
+        fromInput: state.toInput,
+        fromCode: state.toCode,
+        fromSuggestions: state.toSuggestions,
+        toInput: state.fromInput,
+        toCode: state.fromCode,
+        toSuggestions: state.fromSuggestions,
+      };
+    case 'SEARCH_TRAINS':
+      return {
+        ...state,
+        trains: action.trains,
+        error: '',
+      };
+    case 'SET_ERROR':
+      return {
+        ...state,
+        error: action.error,
+        trains: [],
+      };
+    default:
+      return state;
+  }
+}
 
 const TestTrain = () => {
   const navigation = useNavigation();
-  const [fromInput, setFromInput] = useState('');
-  const [toInput, setToInput] = useState('');
-  const [fromCode, setFromCode] = useState('');
-  const [toCode, setToCode] = useState('');
-  const [fromSuggestions, setFromSuggestions] = useState([]);
-  const [toSuggestions, setToSuggestions] = useState([]);
-  const [showFromSuggestions, setShowFromSuggestions] = useState(false);
-  const [showToSuggestions, setShowToSuggestions] = useState(false);
-  const [trains, setTrains] = useState([]);
-  const [error, setError] = useState('');
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const {
+    fromInput,
+    toInput,
+    fromCode,
+    toCode,
+    fromSuggestions,
+    toSuggestions,
+    showFromSuggestions,
+    showToSuggestions,
+    trains,
+    error,
+  } = state;
 
   // Search stations and show suggestions
   const handleStationSearch = (query, field) => {
-    if (field === 'from') {
-      setFromInput(query);
-      setShowFromSuggestions(true);
-    } else {
-      setToInput(query);
-      setShowToSuggestions(true);
-    }
+    dispatch({ type: 'SET_FIELD', field: field === 'from' ? 'fromInput' : 'toInput', value: query });
 
     if (!query.trim()) {
-      if (field === 'from') {
-        setFromSuggestions(dummyData.stations.slice(0, 10));
-      } else {
-        setToSuggestions(dummyData.stations.slice(0, 10));
-      }
+      dispatch({
+        type: 'SET_SUGGESTIONS',
+        field,
+        value: dummyData.stations.slice(0, 10),
+        show: true
+      });
       return;
     }
 
@@ -57,35 +112,23 @@ const TestTrain = () => {
       return searchText.includes(query.toLowerCase());
     }).slice(0, 10);
 
-    if (field === 'from') {
-      setFromSuggestions(filtered);
-    } else {
-      setToSuggestions(filtered);
-    }
+    dispatch({
+      type: 'SET_SUGGESTIONS',
+      field,
+      value: filtered,
+      show: true
+    });
   };
 
   // Select a station from suggestions
   const selectStation = (station, field) => {
-    if (field === 'from') {
-      setFromInput(`${station.name} (${station.code})`);
-      setFromCode(station.code);
-      setShowFromSuggestions(false);
-      setFromSuggestions([]);
-    } else {
-      setToInput(`${station.name} (${station.code})`);
-      setToCode(station.code);
-      setShowToSuggestions(false);
-      setToSuggestions([]);
-    }
+    dispatch({ type: 'SELECT_STATION', station, field });
   };
 
   // Search trains between two stations
   const searchTrains = () => {
-    setError('');
-    setTrains([]);
-
     if (!fromCode || !toCode) {
-      setError('Please select both From and To stations');
+      dispatch({ type: 'SET_ERROR', error: 'Please select both From and To stations' });
       return;
     }
 
@@ -94,7 +137,7 @@ const TestTrain = () => {
     const toStation = dummyData.stations.find(s => s.code === toCode);
 
     if (!fromStation || !toStation) {
-      setError('Invalid stations selected');
+      dispatch({ type: 'SET_ERROR', error: 'Invalid stations selected' });
       return;
     }
 
@@ -109,11 +152,11 @@ const TestTrain = () => {
     });
 
     if (matchingTrains.length === 0) {
-      setError(`No trains found between ${fromStation.name} and ${toStation.name}`);
+      dispatch({ type: 'SET_ERROR', error: `No trains found between ${fromStation.name} and ${toStation.name}` });
       return;
     }
 
-    setTrains(matchingTrains);
+    dispatch({ type: 'SEARCH_TRAINS', trains: matchingTrains });
   };
 
   // Navigate to booking screen
@@ -212,10 +255,12 @@ const TestTrain = () => {
                 placeholderTextColor="#9CA3AF"
                 onChangeText={(text) => handleStationSearch(text, 'from')}
                 onFocus={() => {
-                  setShowFromSuggestions(true);
-                  if (fromSuggestions.length === 0) {
-                    setFromSuggestions(dummyData.stations.slice(0, 10));
-                  }
+                  dispatch({
+                    type: 'SET_SUGGESTIONS',
+                    field: 'from',
+                    value: fromSuggestions.length === 0 ? dummyData.stations.slice(0, 10) : fromSuggestions,
+                    show: true
+                  });
                 }}
               />
             </View>
@@ -232,20 +277,7 @@ const TestTrain = () => {
           <View style={styles.swapButtonContainer}>
             <TouchableOpacity
               style={styles.swapButton}
-              onPress={() => {
-                // Swap the values
-                const tempInput = fromInput;
-                const tempCode = fromCode;
-                const tempSuggestions = fromSuggestions;
-
-                setFromInput(toInput);
-                setFromCode(toCode);
-                setFromSuggestions(toSuggestions);
-
-                setToInput(tempInput);
-                setToCode(tempCode);
-                setToSuggestions(tempSuggestions);
-              }}
+              onPress={() => dispatch({ type: 'SWAP_STATIONS' })}
             >
               <MaterialIcons name="swap-vert" size={24} color="#fff" />
             </TouchableOpacity>
@@ -263,10 +295,12 @@ const TestTrain = () => {
                 placeholderTextColor="#9CA3AF"
                 onChangeText={(text) => handleStationSearch(text, 'to')}
                 onFocus={() => {
-                  setShowToSuggestions(true);
-                  if (toSuggestions.length === 0) {
-                    setToSuggestions(dummyData.stations.slice(0, 10));
-                  }
+                  dispatch({
+                    type: 'SET_SUGGESTIONS',
+                    field: 'to',
+                    value: toSuggestions.length === 0 ? dummyData.stations.slice(0, 10) : toSuggestions,
+                    show: true
+                  });
                 }}
               />
             </View>
@@ -304,7 +338,5 @@ const TestTrain = () => {
     </SafeAreaView>
   );
 };
-
-import styles from '../../CSS/TestTrain';
 
 export default TestTrain;

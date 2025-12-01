@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import { View, StyleSheet, ScrollView, Platform, Alert, TouchableOpacity, Image, } from 'react-native';
+import { View, ScrollView, Alert, TouchableOpacity, Image, } from 'react-native';
 import { TextInput, Button, Text, Checkbox, Divider, } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';

@@ -1,35 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import React, { useReducer, useEffect } from 'react';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Text, Avatar, Button, Card, Divider } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from '../Login';
 import CreateAccount from '../CreateAccount';
+import styles from '../../CSS/Profile';
 
+const initialState = {
+  isLoggedIn: false,
+  showCreateAccount: false,
+  userName: '',
+  userEmail: '',
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'LOGIN_SUCCESS':
+      return {
+        ...state,
+        isLoggedIn: true,
+        userName: action.name,
+        userEmail: action.email,
+      };
+    case 'LOGOUT':
+      return {
+        ...state,
+        isLoggedIn: false,
+        userName: '',
+        userEmail: '',
+        showCreateAccount: false,
+      };
+    case 'SET_CREATE_ACCOUNT':
+      return { ...state, showCreateAccount: action.value };
+    case 'LOGIN_FAILURE':
+      return { ...state, isLoggedIn: false };
+    default:
+      return state;
+  }
+}
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showCreateAccount, setShowCreateAccount] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { isLoggedIn, showCreateAccount, userName, userEmail } = state;
 
   const checkLoginStatus = async () => {
     try {
       const userData = await AsyncStorage.getItem('user');
       if (userData) {
         const user = JSON.parse(userData);
-        setIsLoggedIn(true);
-        setUserName(user.name || user.fullName || 'User');
-        setUserEmail(user.email || '');
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          name: user.name || user.fullName || 'User',
+          email: user.email || '',
+        });
       } else {
-        setIsLoggedIn(false);
+        dispatch({ type: 'LOGIN_FAILURE' });
       }
     } catch (error) {
       console.error('Error checking login status:', error);
-      setIsLoggedIn(false);
+      dispatch({ type: 'LOGIN_FAILURE' });
     }
   };
 
@@ -37,14 +69,12 @@ const ProfileScreen = () => {
     try {
       await AsyncStorage.removeItem('user');
       await AsyncStorage.removeItem('lastUser');
-      setIsLoggedIn(false);
-      setUserName('');
-      setUserEmail('');
-      setShowCreateAccount(false);
+      dispatch({ type: 'LOGOUT' });
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
+
   if (!isLoggedIn) {
     if (showCreateAccount) {
       return (
@@ -53,7 +83,7 @@ const ProfileScreen = () => {
             ...navigation,
             navigate: (route) => {
               if (route === 'Login') {
-                setShowCreateAccount(false);
+                dispatch({ type: 'SET_CREATE_ACCOUNT', value: false });
               } else {
                 navigation.navigate(route);
               }
@@ -68,7 +98,7 @@ const ProfileScreen = () => {
           ...navigation,
           navigate: (route) => {
             if (route === 'CreateAccount') {
-              setShowCreateAccount(true);
+              dispatch({ type: 'SET_CREATE_ACCOUNT', value: true });
             } else if (route === 'MainApp') {
               checkLoginStatus();
               navigation.navigate(route);
@@ -213,7 +243,5 @@ const ProfileScreen = () => {
     </View>
   );
 };
-
-import styles from '../../CSS/Profile';
 
 export default ProfileScreen;

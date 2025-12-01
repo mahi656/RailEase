@@ -1,26 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    SafeAreaView,
-    StatusBar,
-    RefreshControl,
-    ActivityIndicator,
-    TouchableOpacity,
-    Alert,
-} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, FlatList, SafeAreaView, StatusBar, ActivityIndicator, TouchableOpacity, Alert, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import styles from '../../CSS/SavedTicket';
 
 const PRIMARY_BLUE = '#2979FF';
-const PRIMARY_BLUE_LIGHT = '#E3F2FD';
 
 const SavedTicket = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
 
     const loadTickets = async () => {
         try {
@@ -32,18 +21,14 @@ const SavedTicket = () => {
             console.error('Error loading tickets:', error);
         } finally {
             setLoading(false);
-            setRefreshing(false);
         }
     };
 
-    useEffect(() => {
-        loadTickets();
-    }, []);
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        loadTickets();
-    };
+    useFocusEffect(
+        useCallback(() => {
+            loadTickets();
+        }, [])
+    );
 
     const deleteTicket = async (ticketId) => {
         Alert.alert(
@@ -233,19 +218,9 @@ const SavedTicket = () => {
                     tickets.length === 0 && styles.emptyListContent
                 ]}
                 ListEmptyComponent={renderEmptyState}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        colors={[PRIMARY_BLUE]}
-                        tintColor={PRIMARY_BLUE}
-                    />
-                }
             />
         </SafeAreaView>
     );
 };
-
-import styles from '../../CSS/SavedTicket';
 
 export default SavedTicket;

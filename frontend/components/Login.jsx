@@ -1,26 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  Image,
-} from 'react-native';
-import {
-  TextInput,
-  Button,
-  Text,
-  Divider,
-} from 'react-native-paper';
+import React, { useReducer, useEffect } from 'react';
+import { View, ScrollView, TouchableOpacity, Alert, Image, } from 'react-native';
+import { TextInput, Button, Text, Divider, } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from '../CSS/Login';
+
+const initialState = {
+  email: '',
+  password: '',
+  showPassword: false,
+  lastUser: null,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'TOGGLE_PASSWORD':
+      return { ...state, showPassword: !state.showPassword };
+    case 'SET_LAST_USER':
+      return { ...state, lastUser: action.value };
+    default:
+      return state;
+  }
+}
 
 const LoginPage = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [lastUser, setLastUser] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { email, password, showPassword, lastUser } = state;
 
   // Load saved email and last user details
   useEffect(() => {
@@ -28,7 +35,7 @@ const LoginPage = ({ navigation }) => {
       try {
         const lastUserJson = await AsyncStorage.getItem('lastUser');
         if (lastUserJson) {
-          setLastUser(JSON.parse(lastUserJson));
+          dispatch({ type: 'SET_LAST_USER', value: JSON.parse(lastUserJson) });
         }
       } catch (error) {
         console.error('Error loading saved data:', error);
@@ -100,14 +107,8 @@ const LoginPage = ({ navigation }) => {
 
   const handleContinueAsUser = () => {
     if (lastUser) {
-      setEmail(lastUser.email);
-      setPassword(lastUser.password);
-      // Automatically trigger login after state update
-      // We need to use the values directly since state update is async
-      // But handleLogin uses state 'email' and 'password'
-      // So we'll call a modified login logic or wait for state update
-      // For simplicity, we can just set state and let user click login, 
-      // OR better: call login logic directly with values
+      dispatch({ type: 'SET_FIELD', field: 'email', value: lastUser.email });
+      dispatch({ type: 'SET_FIELD', field: 'password', value: lastUser.password });
 
       // Direct login logic for immediate action
       const performAutoLogin = async () => {
@@ -176,7 +177,7 @@ const LoginPage = ({ navigation }) => {
               <TextInput
                 mode="outlined"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => dispatch({ type: 'SET_FIELD', field: 'email', value: text })}
                 placeholder="Email address"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -204,7 +205,7 @@ const LoginPage = ({ navigation }) => {
               <TextInput
                 mode="outlined"
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => dispatch({ type: 'SET_FIELD', field: 'password', value: text })}
                 placeholder="Password"
                 secureTextEntry={!showPassword}
                 left={
@@ -227,7 +228,7 @@ const LoginPage = ({ navigation }) => {
                         color="#666666"
                       />
                     )}
-                    onPress={() => setShowPassword(!showPassword)}
+                    onPress={() => dispatch({ type: 'TOGGLE_PASSWORD' })}
                   />
                 }
                 style={styles.input}
@@ -298,7 +299,5 @@ const LoginPage = ({ navigation }) => {
     </View>
   );
 };
-
-import styles from '../CSS/Login';
 
 export default LoginPage;

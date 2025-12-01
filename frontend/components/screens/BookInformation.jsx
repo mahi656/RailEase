@@ -1,30 +1,49 @@
-import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    TextInput,
-    ScrollView,
-    Alert,
-    SafeAreaView,
-    StatusBar,
-} from 'react-native';
+import React, { useReducer, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, StatusBar, } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from '../../CSS/BookInf';
 
 const PRIMARY_BLUE = '#2979FF';
-const PRIMARY_BLUE_LIGHT = '#E3F2FD';
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'SET_FIELD':
+            return { ...state, [action.field]: action.value };
+        case 'SET_CLASS':
+            return { ...state, selectedClass: action.value };
+        case 'INCREMENT_SEATS':
+            return { ...state, numberOfSeats: Math.min(action.max, state.numberOfSeats + 1) };
+        case 'DECREMENT_SEATS':
+            return { ...state, numberOfSeats: Math.max(1, state.numberOfSeats - 1) };
+        default:
+            return state;
+    }
+}
 
 const BookInformation = ({ route, navigation }) => {
     const { train, fromCode, toCode, fromName, toName } = route.params || {};
 
-    const [selectedClass, setSelectedClass] = useState(train?.classes?.[0] || null);
-    const [numberOfSeats, setNumberOfSeats] = useState(1);
-    const [passengerName, setPassengerName] = useState('');
-    const [passengerAge, setPassengerAge] = useState('');
-    const [passengerGender, setPassengerGender] = useState('Male');
-    const [contactNumber, setContactNumber] = useState('');
+    const initialState = {
+        selectedClass: train?.classes?.[0] || null,
+        numberOfSeats: 1,
+        passengerName: '',
+        passengerAge: '',
+        passengerGender: 'Male',
+        contactNumber: '',
+    };
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    const {
+        selectedClass,
+        numberOfSeats,
+        passengerName,
+        passengerAge,
+        passengerGender,
+        contactNumber,
+    } = state;
 
     const saveBooking = async () => {
         if (!selectedClass) {
@@ -117,7 +136,7 @@ const BookInformation = ({ route, navigation }) => {
                                         styles.classCard,
                                         selectedClass?.class === item.class && styles.classCardActive
                                     ]}
-                                    onPress={() => setSelectedClass(item)}
+                                    onPress={() => dispatch({ type: 'SET_CLASS', value: item })}
                                 >
                                     <View style={styles.classHeader}>
                                         <Text style={[
@@ -151,7 +170,7 @@ const BookInformation = ({ route, navigation }) => {
                     <View style={styles.quantitySelector}>
                         <TouchableOpacity
                             style={[styles.quantityButton, numberOfSeats <= 1 && styles.quantityButtonDisabled]}
-                            onPress={() => setNumberOfSeats(Math.max(1, numberOfSeats - 1))}
+                            onPress={() => dispatch({ type: 'DECREMENT_SEATS' })}
                             disabled={numberOfSeats <= 1}
                         >
                             <Ionicons name="remove" size={20} color={numberOfSeats <= 1 ? '#ccc' : PRIMARY_BLUE} />
@@ -159,7 +178,7 @@ const BookInformation = ({ route, navigation }) => {
                         <Text style={styles.quantityText}>{numberOfSeats}</Text>
                         <TouchableOpacity
                             style={[styles.quantityButton, numberOfSeats >= (selectedClass?.available || 6) && styles.quantityButtonDisabled]}
-                            onPress={() => setNumberOfSeats(Math.min(selectedClass?.available || 6, numberOfSeats + 1))}
+                            onPress={() => dispatch({ type: 'INCREMENT_SEATS', max: selectedClass?.available || 6 })}
                             disabled={numberOfSeats >= (selectedClass?.available || 6)}
                         >
                             <Ionicons name="add" size={20} color={numberOfSeats >= (selectedClass?.available || 6) ? '#ccc' : PRIMARY_BLUE} />
@@ -177,7 +196,7 @@ const BookInformation = ({ route, navigation }) => {
                             style={styles.input}
                             value={passengerName}
                             placeholder="Enter full name"
-                            onChangeText={setPassengerName}
+                            onChangeText={(text) => dispatch({ type: 'SET_FIELD', field: 'passengerName', value: text })}
                         />
                     </View>
 
@@ -188,7 +207,7 @@ const BookInformation = ({ route, navigation }) => {
                             value={passengerAge}
                             placeholder="Enter age"
                             keyboardType="numeric"
-                            onChangeText={setPassengerAge}
+                            onChangeText={(text) => dispatch({ type: 'SET_FIELD', field: 'passengerAge', value: text })}
                         />
                     </View>
 
@@ -202,7 +221,7 @@ const BookInformation = ({ route, navigation }) => {
                                         styles.genderButton,
                                         passengerGender === gender && styles.genderButtonActive,
                                     ]}
-                                    onPress={() => setPassengerGender(gender)}
+                                    onPress={() => dispatch({ type: 'SET_FIELD', field: 'passengerGender', value: gender })}
                                 >
                                     <Text
                                         style={[
@@ -224,7 +243,7 @@ const BookInformation = ({ route, navigation }) => {
                             value={contactNumber}
                             placeholder="Enter mobile number"
                             keyboardType="phone-pad"
-                            onChangeText={setContactNumber}
+                            onChangeText={(text) => dispatch({ type: 'SET_FIELD', field: 'contactNumber', value: text })}
                         />
                     </View>
                 </View>
@@ -242,7 +261,5 @@ const BookInformation = ({ route, navigation }) => {
         </SafeAreaView>
     );
 };
-
-import styles from '../../CSS/BookInf';
 
 export default BookInformation;
