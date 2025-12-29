@@ -64,11 +64,21 @@ const ProfileScreen = () => {
       dispatch({ type: 'LOGIN_FAILURE' });
     }
   };
+  useEffect(() => {
+    checkLoginStatus();
+
+    // Add focus listener to refresh state when screen comes into focus
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkLoginStatus();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
 
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('user');
-      await AsyncStorage.removeItem('lastUser');
       dispatch({ type: 'LOGOUT' });
     } catch (error) {
       console.error('Logout error:', error);

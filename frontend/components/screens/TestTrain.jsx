@@ -1,8 +1,9 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, FlatList, SafeAreaView, StatusBar, ScrollView, } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import dummyData from '../dummydata';
 import styles from '../../CSS/TestTrain';
 
@@ -80,6 +81,30 @@ const TestTrain = () => {
   const navigation = useNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // Load trains from AsyncStorage or initialize with dummyData
+  useEffect(() => {
+    const initTrains = async () => {
+      try {
+        const storedTrains = await AsyncStorage.getItem('allTrains');
+        if (storedTrains) {
+          // We don't necessarily need to set them in state here if we filter on search
+          // But it's good to have them ready.
+        } else {
+          await AsyncStorage.setItem('allTrains', JSON.stringify(dummyData.trains));
+        }
+      } catch (error) {
+        console.error('Error initializing trains:', error);
+      }
+    };
+    initTrains();
+
+    // Refresh trains whenever the screen is focused (to pick up changes from booking)
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Logic handled in searchTrains or on mount
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const {
     fromInput,
     toInput,
@@ -142,21 +167,33 @@ const TestTrain = () => {
     }
 
     // Find trains that have both stations in their route
-    const matchingTrains = dummyData.trains.filter(train => {
-      const routeStationIds = train.route.map(r => r.station);
-      const fromIndex = routeStationIds.indexOf(fromStation.id);
-      const toIndex = routeStationIds.indexOf(toStation.id);
+    const performSearch = async () => {
+      try {
+        const storedTrains = await AsyncStorage.getItem('allTrains');
+        const allTrains = storedTrains ? JSON.parse(storedTrains) : dummyData.trains;
 
-      // Both stations must exist and from must come before to
-      return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
-    });
+        const matchingTrains = allTrains.filter(train => {
+          const routeStationIds = train.route.map(r => r.station);
+          const fromIndex = routeStationIds.indexOf(fromStation.id);
+          const toIndex = routeStationIds.indexOf(toStation.id);
 
-    if (matchingTrains.length === 0) {
-      dispatch({ type: 'SET_ERROR', error: `No trains found between ${fromStation.name} and ${toStation.name}` });
-      return;
-    }
+          // Both stations must exist and from must come before to
+          return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
+        });
 
-    dispatch({ type: 'SEARCH_TRAINS', trains: matchingTrains });
+        if (matchingTrains.length === 0) {
+          dispatch({ type: 'SET_ERROR', error: `No trains found between ${fromStation.name} and ${toStation.name}` });
+          return;
+        }
+
+        dispatch({ type: 'SEARCH_TRAINS', trains: matchingTrains });
+      } catch (error) {
+        console.error('Search error:', error);
+        dispatch({ type: 'SET_ERROR', error: 'Failed to search trains' });
+      }
+    };
+
+    performSearch();
   };
 
   // Navigate to booking screen

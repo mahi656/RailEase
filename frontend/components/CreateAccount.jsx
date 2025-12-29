@@ -257,7 +257,7 @@ const CreateAccount = ({ navigation }) => {
                   placeholder="Password"
                   secureTextEntry={!state.showPassword}
                   autoComplete="off"
-                  textContentType="none"
+                  textContentType="oneTimeCode"
                   importantForAutofill="no"
                   left={
                     <TextInput.Icon
@@ -315,7 +315,7 @@ const CreateAccount = ({ navigation }) => {
                   placeholder="Confirm Password"
                   secureTextEntry={!state.showConfirmPassword}
                   autoComplete="off"
-                  textContentType="none"
+                  textContentType="oneTimeCode"
                   importantForAutofill="no"
                   left={
                     <TextInput.Icon

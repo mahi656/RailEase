@@ -267,7 +267,7 @@ const dummyData = {
                     "available": 4,
                     "fare": 910,
                     "totalSeats": 24
-                }, ,
+                },
                 {
                     "class": "1A",
                     "name": "First AC",

@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, StatusBar, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -96,6 +96,21 @@ const BookInformation = ({ route, navigation }) => {
 
             await AsyncStorage.setItem('bookedTickets', JSON.stringify([booking, ...tickets]));
 
+            // Update train availability in AsyncStorage
+            const storedTrains = await AsyncStorage.getItem('allTrains');
+            if (storedTrains) {
+                const allTrains = JSON.parse(storedTrains);
+                const trainIndex = allTrains.findIndex(t => t.trainNumber === train.trainNumber);
+                if (trainIndex !== -1) {
+                    const updatedTrains = [...allTrains];
+                    const classIndex = updatedTrains[trainIndex].classes.findIndex(c => c.class === selectedClass.class);
+                    if (classIndex !== -1) {
+                        updatedTrains[trainIndex].classes[classIndex].available -= numberOfSeats;
+                        await AsyncStorage.setItem('allTrains', JSON.stringify(updatedTrains));
+                    }
+                }
+            }
+
             Alert.alert('Success', 'Ticket booked successfully!', [
                 {
                     text: 'OK',
@@ -107,6 +122,9 @@ const BookInformation = ({ route, navigation }) => {
             Alert.alert('Error', 'Could not save ticket');
         }
     };
+
+
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -157,7 +175,7 @@ const BookInformation = ({ route, navigation }) => {
                                         <Text style={[
                                             styles.classAvailability,
                                             selectedClass?.class === item.class && styles.classAvailabilityActive
-                                        ]}>AVL: {item.available}</Text>
+                                        ]}>AVL: {item.available - (selectedClass?.class === item.class ? numberOfSeats : 0)}</Text>
                                         <Text style={[
                                             styles.classTotalSeats,
                                             selectedClass?.class === item.class && styles.classAvailabilityActive
@@ -173,6 +191,7 @@ const BookInformation = ({ route, navigation }) => {
                 <View style={styles.seatQuantityContainer}>
                     <Text style={styles.sectionTitle}>Number of Seats</Text>
                     <View style={styles.quantitySelector}>
+
                         <TouchableOpacity
                             style={[styles.quantityButton, numberOfSeats <= 1 && styles.quantityButtonDisabled]}
                             onPress={() => dispatch({ type: 'DECREMENT_SEATS' })}
@@ -190,7 +209,7 @@ const BookInformation = ({ route, navigation }) => {
                         </TouchableOpacity>
                     </View>
                     <Text style={styles.seatQuantityHint}>
-                        {selectedClass ? `${selectedClass.available} seats available in ${selectedClass.class}` : 'Select a class first'}
+                        {selectedClass ? `${selectedClass.available - numberOfSeats} seats available in ${selectedClass.class}` : 'Select a class first'}
                     </Text>
                 </View>
 

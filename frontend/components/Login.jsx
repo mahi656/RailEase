@@ -208,6 +208,9 @@ const LoginPage = ({ navigation }) => {
                 onChangeText={(text) => dispatch({ type: 'SET_FIELD', field: 'password', value: text })}
                 placeholder="Password"
                 secureTextEntry={!showPassword}
+                textContentType="oneTimeCode"
+                autoComplete="off"
+                importantForAutofill="no"
                 left={
                   <TextInput.Icon
                     icon={() => (
