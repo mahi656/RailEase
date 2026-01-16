@@ -1,20 +1,27 @@
 🚆 RailEase
-RailEase is a modern and user-friendly railway enquiry application that enhances the existing experience of booking, tracking, and planning train journeys in India. It aims to provide faster, more reliable, and more interactive train information compared to current government apps.
 
-✨ Features
-Train Schedule & Live Status – Real-time train location, delays, and platform info.
-Ticket Booking Assistance – Quick access to ticket booking (integrated with IRCTC API or third-party solutions).
-🗺 Station & Route Finder – Search trains between stations with multiple filters.
-🔔 Smart Alerts – Get notified about delays, platform changes, or cancellations.
-🌐 Offline Mode – Cache train data for low-network areas.
-💡 Clean UI/UX – Minimal design with smooth animations.
-🛠 Tech Stack
+RailEase is a modern and user-friendly railway enquiry interface that improves the experience of checking train schedules, viewing live running status, and planning journeys in India. It aims to make railway information cleaner, faster, and simpler compared to existing government apps.
 
-Frontend
-React Native – Mobile app for iOS & Android
-React.js – Web application
-HTML, CSS, Tailwind CSS – UI design and styling
-Backend
-Node.js – API development and server-side logic
-Database
-MySQL – Relational database for storing train, station, and user data RailEase/ │ ├── frontend/ # React.js + Tailwind CSS code (Web) ├── mobile-app/ # React Native mobile app code ├── backend/ # Node.js server code ├── database/ # SQL scripts & schema └── README.md # Project documentationgit init
+✨ Features (Frontend UI)
+• Train Schedule & Live Status — View timings and running information.
+• Station Search — Search trains between source and destination stations.
+• Filters for Better Planning — Sort trains by timing, frequency, etc.
+• Modern UI — Clean, minimal, and responsive interface.
+• Smooth User Experience — Fast navigation and intuitive layout.
+
+🛠 Tech Stack (Frontend Only)
+• React Native
+• Tailwind CSS (NativeWind or similar)
+• JavaScript
+
+📁 Project Structure (Frontend)
+RailEase/
+├── src/      # Components, screens, assets
+├── app/      # Navigation / routing (if used)
+└── README.md # Documentation
+
+🎯 Goal
+To redesign railway enquiry with a simple and modern UI/UX that helps users quickly access train information without unnecessary complexity.
+
+🚧 Status
+Mobile UI prototype stage — exploring real data integration in the future.
