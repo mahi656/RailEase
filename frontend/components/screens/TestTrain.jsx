@@ -85,13 +85,11 @@ const TestTrain = () => {
   useEffect(() => {
     const initTrains = async () => {
       try {
-        const storedTrains = await AsyncStorage.getItem('allTrains');
-        if (storedTrains) {
-          // We don't necessarily need to set them in state here if we filter on search
-          // But it's good to have them ready.
-        } else {
-          await AsyncStorage.setItem('allTrains', JSON.stringify(dummyData.trains));
-        }
+        // DEV: Always update trains from dummyData to ensure schema changes (like platform numbers) are reflected
+        // In a real app, this would need a proper migration strategy to preserve availability
+        await AsyncStorage.setItem('allTrains', JSON.stringify(dummyData.trains));
+
+        // Ensure bookings are also initialized if needed, or just rely on train data
       } catch (error) {
         console.error('Error initializing trains:', error);
       }
@@ -201,12 +199,17 @@ const TestTrain = () => {
     const fromStation = dummyData.stations.find(s => s.code === fromCode);
     const toStation = dummyData.stations.find(s => s.code === toCode);
 
+    const fromRoute = train.route.find(r => r.station === fromStation?.id);
+    const toRoute = train.route.find(r => r.station === toStation?.id);
+
     navigation.navigate('BookInformation', {
       train,
       fromCode,
       toCode,
       fromName: fromStation?.name || fromCode,
       toName: toStation?.name || toCode,
+      fromPlatform: fromRoute?.platform,
+      toPlatform: toRoute?.platform,
     });
   };
 
@@ -228,43 +231,57 @@ const TestTrain = () => {
   );
 
   // Render train card
-  const renderTrainCard = ({ item }) => (
-    <View style={styles.trainCard}>
-      <View style={styles.trainHeader}>
-        <View>
-          <Text style={styles.trainNumber}>{item.trainNumber}</Text>
-          <Text style={styles.trainName}>{item.name}</Text>
+  const renderTrainCard = ({ item }) => {
+    const fromStation = dummyData.stations.find(s => s.code === fromCode);
+    const toStation = dummyData.stations.find(s => s.code === toCode);
+
+    const fromRoute = item.route.find(r => r.station === fromStation?.id);
+    const toRoute = item.route.find(r => r.station === toStation?.id);
+
+    return (
+      <View style={styles.trainCard}>
+        <View style={styles.trainHeader}>
+          <View>
+            <Text style={styles.trainNumber}>{item.trainNumber}</Text>
+            <Text style={styles.trainName}>{item.name}</Text>
+          </View>
+          <View style={styles.trainTypeBadge}>
+            <Text style={styles.trainTypeText}>{item.type}</Text>
+          </View>
         </View>
-        <View style={styles.trainTypeBadge}>
-          <Text style={styles.trainTypeText}>{item.type}</Text>
+
+        <View style={styles.routeRow}>
+          <View style={styles.timeBlock}>
+            <Text style={styles.timeText}>{item.departureTime}</Text>
+            <Text style={styles.stationCodeText}>{fromCode}</Text>
+            {fromRoute?.platform && (
+              <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>PF {fromRoute.platform}</Text>
+            )}
+          </View>
+
+          <View style={styles.durationBlock}>
+            <Ionicons name="arrow-forward" size={20} color={PRIMARY_BLUE} />
+            <Text style={styles.durationText}>{item.duration}</Text>
+          </View>
+
+          <View style={styles.timeBlock}>
+            <Text style={styles.timeText}>{item.arrivalTime}</Text>
+            <Text style={styles.stationCodeText}>{toCode}</Text>
+            {toRoute?.platform && (
+              <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>PF {toRoute.platform}</Text>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.trainFooter}>
+
+          <TouchableOpacity style={styles.bookButton} onPress={() => openBooking(item)}>
+            <Text style={styles.bookButtonText}>Book Ticket</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.routeRow}>
-        <View style={styles.timeBlock}>
-          <Text style={styles.timeText}>{item.departureTime}</Text>
-          <Text style={styles.stationCodeText}>{fromCode}</Text>
-        </View>
-
-        <View style={styles.durationBlock}>
-          <Ionicons name="arrow-forward" size={20} color={PRIMARY_BLUE} />
-          <Text style={styles.durationText}>{item.duration}</Text>
-        </View>
-
-        <View style={styles.timeBlock}>
-          <Text style={styles.timeText}>{item.arrivalTime}</Text>
-          <Text style={styles.stationCodeText}>{toCode}</Text>
-        </View>
-      </View>
-
-      <View style={styles.trainFooter}>
-
-        <TouchableOpacity style={styles.bookButton} onPress={() => openBooking(item)}>
-          <Text style={styles.bookButtonText}>Book Ticket</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>

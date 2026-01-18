@@ -23,7 +23,7 @@ function reducer(state, action) {
 }
 
 const BookInformation = ({ route, navigation }) => {
-    const { train, fromCode, toCode, fromName, toName } = route.params || {};
+    const { train, fromCode, toCode, fromName, toName, fromPlatform, toPlatform } = route.params || {};
 
     const initialState = {
         selectedClass: train?.classes?.[0] || null,
@@ -142,7 +142,7 @@ const BookInformation = ({ route, navigation }) => {
                     <View style={styles.trainInfo}>
                         <Text style={styles.trainInfoText}>{train.name}</Text>
                         <Text style={styles.trainInfoSubtext}>
-                            {fromCode} → {toCode}
+                            {fromCode}{fromPlatform ? ` (PF ${fromPlatform})` : ''} → {toCode}{toPlatform ? ` (PF ${toPlatform})` : ''}
                         </Text>
                     </View>
                 )}

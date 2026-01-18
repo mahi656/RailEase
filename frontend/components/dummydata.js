@@ -164,21 +164,24 @@ const dummyData = {
                     "arrival": "-",
                     "departure": "16:25",
                     "day": 1,
-                    "distance": 0
+                    "distance": 0,
+                    "platform": 1
                 },
                 {
                     "station": "ST006",
                     "arrival": "22:45",
                     "departure": "22:50",
                     "day": 1,
-                    "distance": 491
+                    "distance": 491,
+                    "platform": 3
                 },
                 {
                     "station": "ST001",
                     "arrival": "08:35",
                     "departure": "-",
                     "day": 2,
-                    "distance": 1384
+                    "distance": 1384,
+                    "platform": 5
                 }
             ]
         },
@@ -230,21 +233,24 @@ const dummyData = {
                     "arrival": "-",
                     "departure": "16:55",
                     "day": 1,
-                    "distance": 0
+                    "distance": 0,
+                    "platform": 12
                 },
                 {
                     "station": "ST007",
                     "arrival": "02:30",
                     "departure": "02:35",
                     "day": 2,
-                    "distance": 997
+                    "distance": 997,
+                    "platform": 4
                 },
                 {
                     "station": "ST003",
                     "arrival": "07:00",
                     "departure": "-",
                     "day": 2,
-                    "distance": 1442
+                    "distance": 1442,
+                    "platform": 8
                 }
             ]
         },
@@ -296,21 +302,24 @@ const dummyData = {
                     "arrival": "-",
                     "departure": "20:30",
                     "day": 1,
-                    "distance": 0
+                    "distance": 0,
+                    "platform": 10
                 },
                 {
                     "station": "ST008",
                     "arrival": "06:15",
                     "departure": "06:25",
                     "day": 2,
-                    "distance": 512
+                    "distance": 512,
+                    "platform": 2
                 },
                 {
                     "station": "ST004",
                     "arrival": "06:30",
                     "departure": "-",
                     "day": 3,
-                    "distance": 2350
+                    "distance": 2350,
+                    "platform": 6
                 }
             ]
         },
@@ -356,21 +365,24 @@ const dummyData = {
                     "arrival": "-",
                     "departure": "07:15",
                     "day": 1,
-                    "distance": 0
+                    "distance": 0,
+                    "platform": 1
                 },
                 {
                     "station": "ST010",
                     "arrival": "07:22",
                     "departure": "07:23",
                     "day": 1,
-                    "distance": 3
+                    "distance": 3,
+                    "platform": 2
                 },
                 {
                     "station": "ST011",
                     "arrival": "07:30",
                     "departure": "07:31",
                     "day": 1,
-                    "distance": 9
+                    "distance": 9,
+                    "platform": 4
                 },
                 {
                     "station": "ST012",
@@ -415,14 +427,16 @@ const dummyData = {
                     "arrival": "-",
                     "departure": "08:45",
                     "day": 1,
-                    "distance": 0
+                    "distance": 0,
+                    "platform": 2
                 },
                 {
                     "station": "ST014",
                     "arrival": "09:45",
                     "departure": "-",
                     "day": 1,
-                    "distance": 28
+                    "distance": 28,
+                    "platform": 1
                 }
             ]
         },
@@ -474,14 +488,16 @@ const dummyData = {
                     "arrival": "-",
                     "departure": "23:15",
                     "day": 1,
-                    "distance": 0
+                    "distance": 0,
+                    "platform": 5
                 },
                 {
                     "station": "ST006",
                     "arrival": "06:45",
                     "departure": "-",
                     "day": 2,
-                    "distance": 491
+                    "distance": 491,
+                    "platform": 2
                 }
             ]
         }
