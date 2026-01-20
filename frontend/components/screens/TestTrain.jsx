@@ -86,11 +86,9 @@ const TestTrain = () => {
     const initTrains = async () => {
       try {
         // DEV: Always update trains from dummyData to ensure schema changes (like platform numbers) are reflected
-        // In a real app, this would need a proper migration strategy to preserve availability
         await AsyncStorage.setItem('allTrains', JSON.stringify(dummyData.trains));
-
-        // Ensure bookings are also initialized if needed, or just rely on train data
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('Error initializing trains:', error);
       }
     };
@@ -282,6 +280,7 @@ const TestTrain = () => {
       </View>
     );
   };
+  //render card ends here
 
   return (
     <SafeAreaView style={styles.container}>

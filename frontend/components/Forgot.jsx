@@ -21,7 +21,6 @@ const Forgot = ({ navigation }) => {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          {/* Illustration */}
           <View style={styles.illustrationContainer}>
             <Image
               source={require('../photos/Reset password-pana.png')}
