@@ -7,6 +7,7 @@ const {
   makeStrictEnum,
   Public,
   getRuntime,
+  skip
 } = require('./runtime/index-browser.js')
 
 
@@ -16,11 +17,11 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 5.16.0
+ * Prisma Client JS version: 5.22.0
  * Query Engine version: 605197351a3c8bdd595af2d2a9bc3025bca48ea2
  */
 Prisma.prismaVersion = {
-  client: "5.16.0",
+  client: "5.22.0",
   engine: "605197351a3c8bdd595af2d2a9bc3025bca48ea2"
 }
 
@@ -108,6 +109,8 @@ Prisma.NullTypes = {
   AnyNull: objectEnumValues.classes.AnyNull
 }
 
+
+
 /**
  * Enums
  */
@@ -119,26 +122,11 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.BookingScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  eventId: 'eventId',
-  seats: 'seats',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.EventScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  location: 'location',
-  date: 'date',
-  totalSeats: 'totalSeats'
-};
-
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  email: 'email'
+  email: 'email',
+  password: 'password'
 };
 
 exports.Prisma.SortOrder = {
@@ -146,15 +134,8 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 
 exports.Prisma.ModelName = {
-  Booking: 'Booking',
-  Event: 'Event',
   User: 'User'
 };
 

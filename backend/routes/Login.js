@@ -1,5 +1,4 @@
 const express = require('express')
-const app = express()
 const router = express.Router()
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
@@ -7,9 +6,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 require('dotenv').config()
 const SECRET = process.env.JWT_SECRET
-app.use(express.json())
 
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body
 
@@ -36,12 +34,11 @@ app.post('/login', async (req, res) => {
       token: token
     })
 
-  } 
+  }
   catch (err) {
     console.log(err)
     return res.status(500).json({ message: "Server error" })
   }
 })
-app.listen(3001, () => {
-  console.log("Server is running on port 3000")
-})
+
+module.exports = router
